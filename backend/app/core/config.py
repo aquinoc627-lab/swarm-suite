@@ -44,6 +44,24 @@ ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 
 REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 # ---------------------------------------------------------------------------
+# Authentication Mode: "jwt" (default) or "oauth"
+# ---------------------------------------------------------------------------
+# Set AUTH_MODE=oauth to switch from local JWT to external OAuth provider.
+# When AUTH_MODE=oauth, the following variables must be set:
+#   OAUTH_DOMAIN      — e.g., "your-tenant.auth0.com" or "your-okta-domain.okta.com"
+#   OAUTH_CLIENT_ID   — OAuth application client ID
+#   OAUTH_CLIENT_SECRET — OAuth application client secret
+#   OAUTH_AUDIENCE    — API audience / resource identifier
+#   OAUTH_ISSUER      — Token issuer URL (defaults to https://{OAUTH_DOMAIN}/)
+AUTH_MODE: str = os.getenv("AUTH_MODE", "jwt")  # "jwt" or "oauth"
+OAUTH_DOMAIN: str = os.getenv("OAUTH_DOMAIN", "")
+OAUTH_CLIENT_ID: str = os.getenv("OAUTH_CLIENT_ID", "")
+OAUTH_CLIENT_SECRET: str = os.getenv("OAUTH_CLIENT_SECRET", "")
+OAUTH_AUDIENCE: str = os.getenv("OAUTH_AUDIENCE", "")
+OAUTH_ISSUER: str = os.getenv("OAUTH_ISSUER", f"https://{OAUTH_DOMAIN}/" if OAUTH_DOMAIN else "")
+OAUTH_ALGORITHMS: list[str] = ["RS256"]
+
+# ---------------------------------------------------------------------------
 # CORS
 # ---------------------------------------------------------------------------
 CORS_ORIGINS: list[str] = os.getenv(

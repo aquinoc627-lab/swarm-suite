@@ -12,10 +12,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.audit import record_audit
 from app.core.database import get_db
 from app.core.security import get_current_user, require_admin
 from app.core.websocket_manager import manager
@@ -66,6 +67,7 @@ async def list_banter(
 @router.post("", response_model=BanterRead, status_code=status.HTTP_201_CREATED)
 async def create_banter(
     body: BanterCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -80,6 +82,17 @@ async def create_banter(
     db.add(banter)
     await db.flush()
     await db.refresh(banter)
+
+    # Audit log
+    await record_audit(
+        db,
+        user_id=current_user.id,
+        action="create",
+        entity_type="banter",
+        entity_id=banter.id,
+        details={"message_type": banter.message_type, "mission_id": body.mission_id, "agent_id": body.agent_id},
+        request=request,
+    )
 
     banter_data = BanterRead.model_validate(banter).model_dump(mode="json")
 
@@ -121,8 +134,9 @@ async def get_banter(
 @router.delete("/{banter_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_banter(
     banter_id: str,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(require_admin),
+    admin: User = Depends(require_admin),
 ):
     """Delete a banter message.  Requires admin privileges."""
     result = await db.execute(select(Banter).where(Banter.id == banter_id))
@@ -132,6 +146,17 @@ async def delete_banter(
 
     await db.delete(banter)
     await db.flush()
+
+    # Audit log
+    await record_audit(
+        db,
+        user_id=admin.id,
+        action="delete",
+        entity_type="banter",
+        entity_id=banter_id,
+        details={"message": banter.message[:100]},
+        request=request,
+    )
 
     await manager.broadcast({
         "event": "banter_deleted",

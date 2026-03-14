@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import NotificationCenter from "./NotificationCenter";
 import {
   MdDashboard,
   MdRocketLaunch,
@@ -65,6 +66,7 @@ export default function Layout() {
       </aside>
 
       <main className="main-content">
+        <NotificationCenter />
         <Outlet />
       </main>
     </div>

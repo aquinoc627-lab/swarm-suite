@@ -14,10 +14,11 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.audit import record_audit
 from app.core.database import get_db
 from app.core.security import get_current_user, require_admin
 from app.core.websocket_manager import manager
@@ -53,6 +54,7 @@ async def list_agents(
 @router.post("", response_model=AgentRead, status_code=status.HTTP_201_CREATED)
 async def create_agent(
     body: AgentCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -76,6 +78,17 @@ async def create_agent(
     db.add(agent)
     await db.flush()
     await db.refresh(agent)
+
+    # Audit log
+    await record_audit(
+        db,
+        user_id=current_user.id,
+        action="create",
+        entity_type="agent",
+        entity_id=agent.id,
+        details={"name": agent.name, "status": agent.status},
+        request=request,
+    )
 
     # Broadcast real-time update
     await manager.broadcast({
@@ -104,14 +117,18 @@ async def get_agent(
 async def update_agent(
     agent_id: str,
     body: AgentUpdate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Update an existing agent."""
     result = await db.execute(select(Agent).where(Agent.id == agent_id))
     agent = result.scalar_one_or_none()
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
+
+    # Capture before-state for audit
+    before = {"name": agent.name, "status": agent.status, "description": agent.description}
 
     update_data = body.model_dump(exclude_unset=True)
     if "status" in update_data and update_data["status"] is not None:
@@ -122,6 +139,18 @@ async def update_agent(
 
     await db.flush()
     await db.refresh(agent)
+
+    # Audit log
+    after = {"name": agent.name, "status": agent.status, "description": agent.description}
+    await record_audit(
+        db,
+        user_id=current_user.id,
+        action="update",
+        entity_type="agent",
+        entity_id=agent.id,
+        details={"before": before, "after": after},
+        request=request,
+    )
 
     await manager.broadcast({
         "event": "agent_updated",
@@ -134,8 +163,9 @@ async def update_agent(
 @router.delete("/{agent_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_agent(
     agent_id: str,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(require_admin),
+    admin: User = Depends(require_admin),
 ):
     """Delete an agent.  Requires admin privileges."""
     result = await db.execute(select(Agent).where(Agent.id == agent_id))
@@ -143,8 +173,20 @@ async def delete_agent(
     if agent is None:
         raise HTTPException(status_code=404, detail="Agent not found")
 
+    agent_name = agent.name
     await db.delete(agent)
     await db.flush()
+
+    # Audit log
+    await record_audit(
+        db,
+        user_id=admin.id,
+        action="delete",
+        entity_type="agent",
+        entity_id=agent_id,
+        details={"name": agent_name},
+        request=request,
+    )
 
     await manager.broadcast({
         "event": "agent_deleted",

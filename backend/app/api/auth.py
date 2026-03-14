@@ -11,10 +11,11 @@ Endpoints:
 
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.audit import record_audit
 from app.core.database import get_db
 from app.core.security import (
     create_access_token,
@@ -41,6 +42,7 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def register(
     body: UserCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     _admin: User = Depends(require_admin),
 ):
@@ -66,12 +68,24 @@ async def register(
     db.add(user)
     await db.flush()
     await db.refresh(user)
+
+    await record_audit(
+        db,
+        user_id=_admin.id,
+        action="register_user",
+        entity_type="user",
+        entity_id=user.id,
+        details={"username": user.username, "role": user.role},
+        request=request,
+    )
+
     return user
 
 
 @router.post("/login", response_model=TokenPair)
 async def login(
     body: LoginRequest,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """Authenticate with username and password, receive a JWT token pair."""
@@ -81,6 +95,15 @@ async def login(
     user = result.scalar_one_or_none()
 
     if user is None or not verify_password(body.password, user.hashed_password):
+        # Audit failed login attempt
+        await record_audit(
+            db,
+            user_id=None,
+            action="login_failed",
+            entity_type="auth",
+            details={"username": body.username},
+            request=request,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password",
@@ -102,12 +125,23 @@ async def login(
     ))
     await db.flush()
 
+    # Audit successful login
+    await record_audit(
+        db,
+        user_id=user.id,
+        action="login",
+        entity_type="auth",
+        details={"username": user.username},
+        request=request,
+    )
+
     return TokenPair(access_token=access, refresh_token=raw_refresh)
 
 
 @router.post("/refresh", response_model=TokenPair)
 async def refresh(
     body: TokenRefresh,
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """Exchange a valid refresh token for a new token pair (rotation)."""
@@ -161,12 +195,21 @@ async def refresh(
     ))
     await db.flush()
 
+    await record_audit(
+        db,
+        user_id=user.id,
+        action="token_refresh",
+        entity_type="auth",
+        request=request,
+    )
+
     return TokenPair(access_token=access, refresh_token=raw_refresh)
 
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(
     body: TokenRefresh,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(get_current_user),
 ):
@@ -179,6 +222,14 @@ async def logout(
     if stored:
         stored.revoked = True
         await db.flush()
+
+    await record_audit(
+        db,
+        user_id=_user.id,
+        action="logout",
+        entity_type="auth",
+        request=request,
+    )
 
 
 @router.get("/me", response_model=UserRead)

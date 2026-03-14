@@ -4,6 +4,13 @@ Swarm Suite — Security Utilities
 Provides JWT token creation/verification, password hashing, and
 FastAPI dependencies for authentication and role-based access control.
 
+Authentication mode:
+  - AUTH_MODE=jwt  (default) — local JWT with bcrypt passwords
+  - AUTH_MODE=oauth          — external OAuth provider (Auth0, Okta, etc.)
+
+The ``get_current_user`` dependency automatically delegates to the correct
+backend based on AUTH_MODE, so route handlers need no changes when switching.
+
 Security design:
   - Access tokens are short-lived (configurable, default 30 min).
   - Refresh tokens are long-lived, stored as SHA-256 hashes in the DB.
@@ -27,6 +34,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
+    AUTH_MODE,
     JWT_ALGORITHM,
     REFRESH_TOKEN_EXPIRE_DAYS,
     SECRET_KEY,
@@ -123,7 +131,7 @@ def decode_access_token(token: str) -> dict:
 
 
 # ======================================================================
-# FastAPI dependencies
+# FastAPI dependencies — unified interface for JWT and OAuth
 # ======================================================================
 
 async def get_current_user(
@@ -133,7 +141,14 @@ async def get_current_user(
     """
     Dependency that extracts and validates the current user from the
     Authorization header.  Returns the User ORM object.
+
+    Automatically delegates to OAuth validation when AUTH_MODE=oauth.
     """
+    if AUTH_MODE == "oauth":
+        from app.core.oauth import get_oauth_user
+        return await get_oauth_user(token=token, db=db)
+
+    # Default: local JWT mode
     from app.models.user import User  # local import to avoid circular deps
 
     payload = decode_access_token(token)
@@ -176,7 +191,14 @@ async def get_ws_user(
 
     Usage:
         ws://host/ws?token=<jwt_access_token>
+
+    Automatically delegates to OAuth validation when AUTH_MODE=oauth.
     """
+    if AUTH_MODE == "oauth":
+        from app.core.oauth import get_oauth_ws_user
+        return await get_oauth_ws_user(websocket, db)
+
+    # Default: local JWT mode
     from app.models.user import User
 
     token = websocket.query_params.get("token")

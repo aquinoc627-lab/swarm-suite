@@ -20,6 +20,7 @@ from app.core.security import get_current_user
 from app.core.websocket_manager import manager
 from app.models.agent import Agent
 from app.models.agent_mission import AgentMission
+from app.models.audit_log import AuditLog
 from app.models.banter import Banter
 from app.models.mission import Mission
 from app.models.user import User
@@ -199,4 +200,53 @@ async def health(
         },
         "websocket_connections": manager.active_count,
         "status": "operational",
+        "online_users": manager.get_online_users(),
     }
+
+
+@router.get("/presence")
+async def presence(
+    _user: User = Depends(get_current_user),
+):
+    """
+    Return the list of currently online users and connection count.
+    """
+    return {
+        "online_users": manager.get_online_users(),
+        "online_count": manager.active_count,
+    }
+
+
+@router.get("/audit")
+async def audit_log(
+    db: AsyncSession = Depends(get_db),
+    _admin: User = Depends(get_current_user),
+    limit: int = 50,
+    offset: int = 0,
+):
+    """
+    Return recent audit log entries.  Available to all authenticated users
+    but sensitive details are only shown to admins.
+    """
+    stmt = (
+        select(AuditLog)
+        .order_by(AuditLog.created_at.desc())
+        .limit(min(limit, 200))
+        .offset(offset)
+    )
+    result = await db.execute(stmt)
+    entries = result.scalars().all()
+
+    return [
+        {
+            "id": e.id,
+            "user_id": e.user_id,
+            "action": e.action,
+            "entity_type": e.entity_type,
+            "entity_id": e.entity_id,
+            "details": e.details if _admin.role == "admin" else None,
+            "ip_address": e.ip_address if _admin.role == "admin" else None,
+            "created_at": e.created_at.isoformat() if e.created_at else None,
+        }
+        for e in entries
+    ]

@@ -5,6 +5,7 @@ Provides a single authenticated WebSocket endpoint that supports:
   - Global broadcast subscription (automatic on connect)
   - Channel subscriptions (mission:<id>, agent:<id>)
   - Receiving banter messages via WebSocket (alternative to REST POST)
+  - User presence tracking (who's online)
 """
 
 from __future__ import annotations
@@ -34,13 +35,21 @@ async def websocket_endpoint(websocket: WebSocket):
       {"action": "subscribe", "channel": "mission:<id>"}
       {"action": "unsubscribe", "channel": "mission:<id>"}
       {"action": "ping"}
+      {"action": "presence"}  — returns current online users
     """
     async with async_session() as db:
         user = await get_ws_user(websocket, db)
         if user is None:
             return  # Connection was closed in get_ws_user
 
-    await manager.connect(websocket)
+        # Build user info for presence tracking
+        user_info = {
+            "id": user.id,
+            "username": user.username,
+            "role": user.role,
+        }
+
+    await manager.connect(websocket, user_info=user_info)
 
     try:
         while True:
@@ -75,6 +84,16 @@ async def websocket_endpoint(websocket: WebSocket):
 
             elif action == "ping":
                 await websocket.send_text(json.dumps({"event": "pong"}))
+
+            elif action == "presence":
+                # Return current online users
+                await websocket.send_text(json.dumps({
+                    "event": "presence",
+                    "data": {
+                        "online_users": manager.get_online_users(),
+                        "online_count": manager.active_count,
+                    },
+                }))
 
             else:
                 await websocket.send_text(json.dumps({

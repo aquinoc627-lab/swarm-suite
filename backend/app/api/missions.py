@@ -17,10 +17,11 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.audit import record_audit
 from app.core.database import get_db
 from app.core.security import get_current_user, require_admin
 from app.core.websocket_manager import manager
@@ -62,6 +63,7 @@ async def list_missions(
 @router.post("", response_model=MissionRead, status_code=status.HTTP_201_CREATED)
 async def create_mission(
     body: MissionCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -76,6 +78,16 @@ async def create_mission(
     db.add(mission)
     await db.flush()
     await db.refresh(mission)
+
+    await record_audit(
+        db,
+        user_id=current_user.id,
+        action="create",
+        entity_type="mission",
+        entity_id=mission.id,
+        details={"name": mission.name, "status": mission.status, "priority": mission.priority},
+        request=request,
+    )
 
     await manager.broadcast({
         "event": "mission_created",
@@ -103,14 +115,23 @@ async def get_mission(
 async def update_mission(
     mission_id: str,
     body: MissionUpdate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Update an existing mission."""
     result = await db.execute(select(Mission).where(Mission.id == mission_id))
     mission = result.scalar_one_or_none()
     if mission is None:
         raise HTTPException(status_code=404, detail="Mission not found")
+
+    # Capture before-state for audit
+    before = {
+        "name": mission.name,
+        "status": mission.status,
+        "priority": mission.priority,
+        "description": mission.description,
+    }
 
     update_data = body.model_dump(exclude_unset=True)
 
@@ -133,6 +154,22 @@ async def update_mission(
     await db.flush()
     await db.refresh(mission)
 
+    after = {
+        "name": mission.name,
+        "status": mission.status,
+        "priority": mission.priority,
+        "description": mission.description,
+    }
+    await record_audit(
+        db,
+        user_id=current_user.id,
+        action="update",
+        entity_type="mission",
+        entity_id=mission.id,
+        details={"before": before, "after": after},
+        request=request,
+    )
+
     await manager.broadcast({
         "event": "mission_updated",
         "data": MissionRead.model_validate(mission).model_dump(mode="json"),
@@ -144,8 +181,9 @@ async def update_mission(
 @router.delete("/{mission_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_mission(
     mission_id: str,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _admin: User = Depends(require_admin),
+    admin: User = Depends(require_admin),
 ):
     """Delete a mission.  Requires admin privileges."""
     result = await db.execute(select(Mission).where(Mission.id == mission_id))
@@ -153,8 +191,19 @@ async def delete_mission(
     if mission is None:
         raise HTTPException(status_code=404, detail="Mission not found")
 
+    mission_name = mission.name
     await db.delete(mission)
     await db.flush()
+
+    await record_audit(
+        db,
+        user_id=admin.id,
+        action="delete",
+        entity_type="mission",
+        entity_id=mission_id,
+        details={"name": mission_name},
+        request=request,
+    )
 
     await manager.broadcast({
         "event": "mission_deleted",
@@ -186,6 +235,7 @@ async def get_mission_agents(
 async def assign_agent(
     mission_id: str,
     body: AgentMissionCreate,
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -222,6 +272,16 @@ async def assign_agent(
     await db.flush()
     await db.refresh(assignment)
 
+    await record_audit(
+        db,
+        user_id=current_user.id,
+        action="assign",
+        entity_type="agent_mission",
+        entity_id=str(assignment.id),
+        details={"agent_id": body.agent_id, "mission_id": mission_id},
+        request=request,
+    )
+
     await manager.broadcast({
         "event": "agent_assigned",
         "data": AgentMissionRead.model_validate(assignment).model_dump(mode="json"),
@@ -234,8 +294,9 @@ async def assign_agent(
 async def revoke_agent(
     mission_id: str,
     agent_id: str,
+    request: Request,
     db: AsyncSession = Depends(get_db),
-    _user: User = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """Revoke an agent's assignment from a mission."""
     result = await db.execute(
@@ -250,6 +311,15 @@ async def revoke_agent(
 
     await db.delete(assignment)
     await db.flush()
+
+    await record_audit(
+        db,
+        user_id=current_user.id,
+        action="revoke",
+        entity_type="agent_mission",
+        details={"agent_id": agent_id, "mission_id": mission_id},
+        request=request,
+    )
 
     await manager.broadcast({
         "event": "agent_revoked",

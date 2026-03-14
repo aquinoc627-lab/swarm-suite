@@ -8,13 +8,14 @@ Supports:
   - Global broadcasts (all connected clients)
   - Targeted broadcasts by mission or agent channel
   - Automatic cleanup of disconnected clients
+  - User presence tracking (who's online)
 """
 
 from __future__ import annotations
 
 import json
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import WebSocket
 
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class ConnectionManager:
     """
-    Thread-safe WebSocket connection manager.
+    Thread-safe WebSocket connection manager with user presence tracking.
 
     Clients can subscribe to specific channels (e.g., "mission:<id>",
     "agent:<id>") in addition to the global broadcast channel.
@@ -34,21 +35,52 @@ class ConnectionManager:
         self._active: list[WebSocket] = []
         # Channel subscriptions: channel_name -> set of WebSocket
         self._channels: dict[str, set[WebSocket]] = {}
+        # Presence tracking: WebSocket -> user info dict
+        self._presence: dict[WebSocket, dict[str, Any]] = {}
 
-    async def connect(self, websocket: WebSocket) -> None:
-        """Accept and register a new WebSocket connection."""
+    async def connect(
+        self,
+        websocket: WebSocket,
+        user_info: Optional[dict[str, Any]] = None,
+    ) -> None:
+        """Accept and register a new WebSocket connection with optional user info."""
         await websocket.accept()
         self._active.append(websocket)
-        logger.info("WebSocket connected: %s", websocket.client)
+
+        if user_info:
+            self._presence[websocket] = user_info
+            # Broadcast presence update to all other clients
+            await self._broadcast_presence_event("user_joined", user_info)
+
+        logger.info(
+            "WebSocket connected: %s (user: %s)",
+            websocket.client,
+            user_info.get("username") if user_info else "unknown",
+        )
 
     def disconnect(self, websocket: WebSocket) -> None:
-        """Remove a WebSocket from all registries."""
+        """Remove a WebSocket from all registries and broadcast departure."""
+        user_info = self._presence.pop(websocket, None)
+
         if websocket in self._active:
             self._active.remove(websocket)
+
         # Remove from all channels
         for channel_sockets in self._channels.values():
             channel_sockets.discard(websocket)
-        logger.info("WebSocket disconnected: %s", websocket.client)
+
+        logger.info(
+            "WebSocket disconnected: %s (user: %s)",
+            websocket.client,
+            user_info.get("username") if user_info else "unknown",
+        )
+
+        # Schedule presence departure broadcast (fire-and-forget)
+        if user_info:
+            import asyncio
+            asyncio.ensure_future(
+                self._broadcast_presence_event("user_left", user_info)
+            )
 
     def subscribe(self, websocket: WebSocket, channel: str) -> None:
         """Subscribe a WebSocket to a named channel."""
@@ -89,6 +121,30 @@ class ConnectionManager:
                 disconnected.append(ws)
         for ws in disconnected:
             self.disconnect(ws)
+
+    async def _broadcast_presence_event(
+        self, event: str, user_info: dict[str, Any]
+    ) -> None:
+        """Broadcast a presence event (join/leave) with the current online list."""
+        await self.broadcast({
+            "event": event,
+            "data": {
+                "user": user_info,
+                "online_users": self.get_online_users(),
+                "online_count": self.active_count,
+            },
+        })
+
+    def get_online_users(self) -> list[dict[str, Any]]:
+        """Return a deduplicated list of currently online users."""
+        seen: set[str] = set()
+        users: list[dict[str, Any]] = []
+        for info in self._presence.values():
+            uid = info.get("id", "")
+            if uid and uid not in seen:
+                seen.add(uid)
+                users.append(info)
+        return users
 
     @property
     def active_count(self) -> int:
