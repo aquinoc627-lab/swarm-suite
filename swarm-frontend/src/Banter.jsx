@@ -1,7 +1,8 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { banterAPI, missionsAPI, agentsAPI } from "./api";
 import { useWebSocket } from "./useWebSocket";
+import { AgentAvatarInline } from "./AgentAvatar";
 import { MdSend } from "react-icons/md";
 
 const MSG_TYPES = ["chat", "system", "alert", "status_update"];
@@ -46,6 +47,17 @@ export default function Banter() {
     queryFn: () => agentsAPI.list().then((r) => r.data),
   });
 
+  // Build agent lookup by ID for avatars
+  const agentMap = useMemo(() => {
+    const map = {};
+    if (agents) {
+      for (const a of agents) {
+        map[a.id] = a;
+      }
+    }
+    return map;
+  }, [agents]);
+
   const sendMut = useMutation({
     mutationFn: (data) => banterAPI.create(data),
     onSuccess: () => {
@@ -75,6 +87,9 @@ export default function Banter() {
 
   // Reverse for chronological display (API returns newest first)
   const sortedMsgs = [...(banterMsgs || [])].reverse();
+
+  // Determine which messages are "recent" (within last 10 seconds) for speaking animation
+  const recentCutoff = Date.now() - 10000;
 
   return (
     <div>
@@ -120,20 +135,61 @@ export default function Banter() {
               No messages yet. Start the conversation!
             </div>
           )}
-          {sortedMsgs.map((b) => (
-            <div key={b.id} className={`banter-msg ${b.message_type}`}>
-              <div className="msg-header">
-                <span className="msg-sender">{b.sender_id ? b.sender_id.slice(0, 8) : "System"}</span>
-                <span className={`badge ${b.message_type}`} style={{ fontSize: 10, padding: "1px 6px" }}>
-                  {b.message_type}
-                </span>
-                <span className="msg-time">
-                  {new Date(b.created_at).toLocaleTimeString()}
-                </span>
+          {sortedMsgs.map((b) => {
+            const linkedAgent = b.agent_id ? agentMap[b.agent_id] : null;
+            const isRecent = new Date(b.created_at).getTime() > recentCutoff;
+
+            return (
+              <div key={b.id} className={`banter-msg ${b.message_type}`}>
+                <div className="banter-msg-with-avatar">
+                  {/* Agent avatar or system icon */}
+                  {linkedAgent ? (
+                    <AgentAvatarInline
+                      agent={linkedAgent}
+                      size={30}
+                      speaking={isRecent}
+                    />
+                  ) : (
+                    <div style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: "50%",
+                      background: b.message_type === "system" ? "rgba(0,240,255,0.1)" : "rgba(255,255,255,0.05)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 14,
+                      color: b.message_type === "system" ? "var(--neon-cyan)" : "var(--text-muted)",
+                      flexShrink: 0,
+                      border: `1px solid ${b.message_type === "alert" ? "var(--neon-red)" : "var(--border-color)"}`,
+                    }}>
+                      {b.message_type === "system" ? "S" : b.message_type === "alert" ? "!" : "U"}
+                    </div>
+                  )}
+
+                  <div className="msg-content">
+                    <div className="msg-header">
+                      <span className="msg-sender" style={{ color: linkedAgent?.persona?.avatar_color || "var(--text-secondary)" }}>
+                        {linkedAgent ? linkedAgent.name : (b.sender_id ? b.sender_id.slice(0, 8) : "System")}
+                      </span>
+                      {linkedAgent && (
+                        <span style={{ fontSize: 10, color: "var(--text-muted)", fontStyle: "italic" }}>
+                          {linkedAgent.persona?.personality || ""}
+                        </span>
+                      )}
+                      <span className={`badge ${b.message_type}`} style={{ fontSize: 10, padding: "1px 6px" }}>
+                        {b.message_type}
+                      </span>
+                      <span className="msg-time">
+                        {new Date(b.created_at).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div className="msg-text">{b.message}</div>
+                  </div>
+                </div>
               </div>
-              <div className="msg-text">{b.message}</div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Compose */}

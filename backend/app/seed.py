@@ -71,11 +71,61 @@ async def seed() -> None:
         # Agents
         # ------------------------------------------------------------------
         agents = [
-            Agent(id=_uid(), name="Recon-Alpha", status="active", description="Primary reconnaissance agent", created_by=admin.id),
-            Agent(id=_uid(), name="Recon-Bravo", status="idle", description="Secondary reconnaissance agent", created_by=admin.id),
-            Agent(id=_uid(), name="Exploit-Charlie", status="active", description="Exploitation specialist", created_by=admin.id),
-            Agent(id=_uid(), name="Monitor-Delta", status="offline", description="Continuous monitoring agent", created_by=operator.id),
-            Agent(id=_uid(), name="Analyst-Echo", status="error", description="Data analysis and reporting agent", created_by=operator.id),
+            Agent(
+                id=_uid(), name="Recon-Alpha", status="active",
+                description="Primary reconnaissance agent — stealthy, fast, and precise.",
+                created_by=admin.id,
+                persona={
+                    "avatar_color": "#00f0ff",
+                    "icon": "satellite",
+                    "personality": "Stealthy & Precise",
+                    "voice_style": "calm",
+                },
+            ),
+            Agent(
+                id=_uid(), name="Recon-Bravo", status="idle",
+                description="Secondary reconnaissance agent — patient observer, deep scanner.",
+                created_by=admin.id,
+                persona={
+                    "avatar_color": "#39ff14",
+                    "icon": "eye",
+                    "personality": "Patient & Observant",
+                    "voice_style": "neutral",
+                },
+            ),
+            Agent(
+                id=_uid(), name="Exploit-Charlie", status="active",
+                description="Exploitation specialist — aggressive, adaptive, relentless.",
+                created_by=admin.id,
+                persona={
+                    "avatar_color": "#ff006e",
+                    "icon": "crosshair",
+                    "personality": "Aggressive & Adaptive",
+                    "voice_style": "assertive",
+                },
+            ),
+            Agent(
+                id=_uid(), name="Monitor-Delta", status="offline",
+                description="Continuous monitoring agent — vigilant sentinel, never sleeps.",
+                created_by=operator.id,
+                persona={
+                    "avatar_color": "#bf00ff",
+                    "icon": "shield",
+                    "personality": "Vigilant & Steadfast",
+                    "voice_style": "calm",
+                },
+            ),
+            Agent(
+                id=_uid(), name="Analyst-Echo", status="error",
+                description="Data analysis and reporting agent — brilliant but temperamental.",
+                created_by=operator.id,
+                persona={
+                    "avatar_color": "#ff6b00",
+                    "icon": "brain",
+                    "personality": "Brilliant & Intense",
+                    "voice_style": "urgent",
+                },
+            ),
         ]
         session.add_all(agents)
         await session.flush()

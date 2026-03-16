@@ -1,7 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { analyticsAPI, agentsAPI, missionsAPI } from "./api";
+import { analyticsAPI, agentsAPI, missionsAPI, banterAPI } from "./api";
 import { useWebSocket } from "./useWebSocket";
+import AgentAvatar from "./AgentAvatar";
 import {
   MdSmartToy,
   MdRocketLaunch,
@@ -11,6 +12,7 @@ import {
 
 export default function SwarmView() {
   const queryClient = useQueryClient();
+  const [selectedAgent, setSelectedAgent] = useState(null);
 
   const onWsMessage = useCallback(
     (msg) => {
@@ -18,6 +20,7 @@ export default function SwarmView() {
         queryClient.invalidateQueries({ queryKey: ["overview"] });
         queryClient.invalidateQueries({ queryKey: ["agents"] });
         queryClient.invalidateQueries({ queryKey: ["missions"] });
+        queryClient.invalidateQueries({ queryKey: ["recent-banter"] });
       }
     },
     [queryClient]
@@ -40,6 +43,41 @@ export default function SwarmView() {
     queryKey: ["missions"],
     queryFn: () => missionsAPI.list().then((r) => r.data),
   });
+
+  // Fetch recent banter to determine which agents are "speaking"
+  const { data: recentBanter } = useQuery({
+    queryKey: ["recent-banter"],
+    queryFn: () => banterAPI.list({ limit: 20 }).then((r) => r.data),
+    refetchInterval: 5000,
+  });
+
+  // Determine speaking agents (those with banter in last 60 seconds)
+  const speakingAgentIds = useMemo(() => {
+    if (!recentBanter) return new Set();
+    const cutoff = Date.now() - 60000;
+    const ids = new Set();
+    for (const b of recentBanter) {
+      if (b.agent_id && new Date(b.created_at).getTime() > cutoff) {
+        ids.add(b.agent_id);
+      }
+    }
+    return ids;
+  }, [recentBanter]);
+
+  // Determine listening agents (active agents assigned to in-progress missions)
+  const listeningAgentIds = useMemo(() => {
+    if (!agents || !missions) return new Set();
+    const inProgressMissionIds = new Set(
+      missions.filter((m) => m.status === "in_progress").map((m) => m.id)
+    );
+    const ids = new Set();
+    for (const a of agents) {
+      if (a.status === "active" && !speakingAgentIds.has(a.id)) {
+        ids.add(a.id);
+      }
+    }
+    return ids;
+  }, [agents, missions, speakingAgentIds]);
 
   const totals = overview?.totals || {};
 
@@ -88,69 +126,125 @@ export default function SwarmView() {
         </div>
       </div>
 
-      {/* Status Panels */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-        {/* Agents Panel */}
-        <div className="panel">
-          <div className="panel-header">
-            <h3>Agent Status</h3>
-          </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {agents?.map((a) => (
-                <tr key={a.id}>
-                  <td>{a.name}</td>
-                  <td>
-                    <span className={`badge ${a.status}`}>
-                      <span className="dot" />
-                      {a.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* Animated Agent Swarm Grid */}
+      <div className="panel" style={{ marginBottom: 24 }}>
+        <div className="panel-header">
+          <h3>Agent Swarm</h3>
+          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            Click an agent to inspect
+          </span>
         </div>
+        <div className="swarm-grid">
+          {agents?.map((agent) => (
+            <div
+              key={agent.id}
+              className="swarm-agent-cell"
+              onClick={() => setSelectedAgent(selectedAgent?.id === agent.id ? null : agent)}
+            >
+              <AgentAvatar
+                agent={agent}
+                size={80}
+                speaking={speakingAgentIds.has(agent.id)}
+                listening={listeningAgentIds.has(agent.id)}
+                showLabel
+              />
+              <div className="agent-voice-tag">
+                {speakingAgentIds.has(agent.id)
+                  ? "SPEAKING"
+                  : listeningAgentIds.has(agent.id)
+                  ? "LISTENING"
+                  : agent.status === "offline"
+                  ? "OFFLINE"
+                  : agent.status === "error"
+                  ? "ERROR"
+                  : "STANDBY"}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        {/* Missions Panel */}
-        <div className="panel">
+      {/* Selected Agent Detail */}
+      {selectedAgent && (
+        <div className="panel" style={{ marginBottom: 24 }}>
           <div className="panel-header">
-            <h3>Mission Status</h3>
+            <h3>Agent Profile: {selectedAgent.name}</h3>
           </div>
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Priority</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {missions?.map((m) => (
-                <tr key={m.id}>
-                  <td>{m.name}</td>
-                  <td>
-                    <span className={`badge ${m.priority}`}>
-                      {m.priority}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`badge ${m.status}`}>
-                      <span className="dot" />
-                      {m.status.replace("_", " ")}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div style={{ display: "flex", gap: 24, padding: "16px 0" }}>
+            <AgentAvatar
+              agent={selectedAgent}
+              size={120}
+              speaking={speakingAgentIds.has(selectedAgent.id)}
+              listening={listeningAgentIds.has(selectedAgent.id)}
+            />
+            <div style={{ flex: 1 }}>
+              <table className="data-table" style={{ marginBottom: 0 }}>
+                <tbody>
+                  <tr>
+                    <td style={{ color: "var(--text-muted)", width: 120 }}>Status</td>
+                    <td><span className={`badge ${selectedAgent.status}`}><span className="dot" />{selectedAgent.status}</span></td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "var(--text-muted)" }}>Personality</td>
+                    <td>{selectedAgent.persona?.personality || "Unknown"}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "var(--text-muted)" }}>Voice Style</td>
+                    <td style={{ textTransform: "capitalize" }}>{selectedAgent.persona?.voice_style || "neutral"}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "var(--text-muted)" }}>Description</td>
+                    <td>{selectedAgent.description || "No description"}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ color: "var(--text-muted)" }}>Activity</td>
+                    <td>
+                      {speakingAgentIds.has(selectedAgent.id)
+                        ? "Currently transmitting banter"
+                        : listeningAgentIds.has(selectedAgent.id)
+                        ? "Monitoring active missions"
+                        : "Idle / Standby"}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
+      )}
+
+      {/* Mission Status Table */}
+      <div className="panel">
+        <div className="panel-header">
+          <h3>Mission Status</h3>
+        </div>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Priority</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {missions?.map((m) => (
+              <tr key={m.id}>
+                <td>{m.name}</td>
+                <td>
+                  <span className={`badge ${m.priority}`}>
+                    {m.priority}
+                  </span>
+                </td>
+                <td>
+                  <span className={`badge ${m.status}`}>
+                    <span className="dot" />
+                    {m.status.replace("_", " ")}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

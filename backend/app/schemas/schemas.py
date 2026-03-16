@@ -103,10 +103,19 @@ class UserUpdate(BaseModel):
 # Agent Schemas
 # ======================================================================
 
+class AgentPersona(BaseModel):
+    """Visual and behavioral identity for an agent."""
+    avatar_color: str = Field("#00f0ff", pattern=r"^#[0-9a-fA-F]{6}$")
+    icon: str = Field("shield", description="Icon key: shield, crosshair, eye, brain, bolt, satellite")
+    personality: str = Field("analytical", description="Personality trait displayed in UI")
+    voice_style: str = Field("neutral", description="Voice style: neutral, assertive, calm, urgent")
+
+
 class AgentCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=128)
     description: Optional[str] = Field(None, max_length=2048)
     status: AgentStatus = AgentStatus.idle
+    persona: Optional[AgentPersona] = None
 
 
 class AgentRead(BaseModel):
@@ -116,6 +125,7 @@ class AgentRead(BaseModel):
     name: str
     status: AgentStatus
     description: Optional[str]
+    persona: Optional[dict] = None
     created_by: Optional[str]
     created_at: datetime
     updated_at: datetime
@@ -125,6 +135,7 @@ class AgentUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=128)
     description: Optional[str] = Field(None, max_length=2048)
     status: Optional[AgentStatus] = None
+    persona: Optional[AgentPersona] = None
 
 
 # ======================================================================

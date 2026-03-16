@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import ForeignKey, String, Text, Index
+from sqlalchemy import ForeignKey, JSON, String, Text, Index
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDPrimaryKey
@@ -36,6 +36,10 @@ class Agent(Base, UUIDPrimaryKey, TimestampMixin):
     )
     description: Mapped[Optional[str]] = mapped_column(
         Text, nullable=True
+    )
+    persona: Mapped[Optional[dict]] = mapped_column(
+        JSON, nullable=True, default=None,
+        comment="Agent persona: avatar_color, icon, personality, voice_style",
     )
     created_by: Mapped[Optional[str]] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
