@@ -162,3 +162,105 @@ async def test_create_agent_unauthenticated(client):
         json={"name": "Unauth-Agent", "status": "idle"},
     )
     assert resp.status_code in (401, 403)
+
+
+@pytest.mark.asyncio
+async def test_create_agent_with_persona(client, admin_token):
+    """Should create an agent with persona data and return it correctly."""
+    persona = {
+        "avatar_color": "#ff006e",
+        "icon": "crosshair",
+        "personality": "Aggressive & Adaptive",
+        "voice_style": "assertive",
+    }
+    resp = await client.post(
+        "/api/agents",
+        json={
+            "name": "Persona-Agent",
+            "description": "Agent with persona",
+            "status": "active",
+            "persona": persona,
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["name"] == "Persona-Agent"
+    assert data["persona"] is not None
+    assert data["persona"]["avatar_color"] == "#ff006e"
+    assert data["persona"]["icon"] == "crosshair"
+    assert data["persona"]["personality"] == "Aggressive & Adaptive"
+    assert data["persona"]["voice_style"] == "assertive"
+
+
+@pytest.mark.asyncio
+async def test_create_agent_without_persona(client, admin_token):
+    """Agent created without persona should have persona as None."""
+    resp = await client.post(
+        "/api/agents",
+        json={"name": "No-Persona-Agent", "status": "idle"},
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["persona"] is None
+
+
+@pytest.mark.asyncio
+async def test_update_agent_persona(client, admin_token):
+    """Should update an agent's persona."""
+    create_resp = await client.post(
+        "/api/agents",
+        json={"name": "Update-Persona-Agent", "status": "idle"},
+        headers=auth_headers(admin_token),
+    )
+    agent_id = create_resp.json()["id"]
+
+    persona = {
+        "avatar_color": "#39ff14",
+        "icon": "eye",
+        "personality": "Patient & Observant",
+        "voice_style": "neutral",
+    }
+    resp = await client.patch(
+        f"/api/agents/{agent_id}",
+        json={"persona": persona},
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["persona"] is not None
+    assert data["persona"]["avatar_color"] == "#39ff14"
+    assert data["persona"]["icon"] == "eye"
+    assert data["persona"]["personality"] == "Patient & Observant"
+    assert data["persona"]["voice_style"] == "neutral"
+
+
+@pytest.mark.asyncio
+async def test_get_agent_with_persona(client, admin_token):
+    """Should persist and retrieve persona data."""
+    persona = {
+        "avatar_color": "#bf00ff",
+        "icon": "shield",
+        "personality": "Vigilant & Steadfast",
+        "voice_style": "calm",
+    }
+    create_resp = await client.post(
+        "/api/agents",
+        json={
+            "name": "Persist-Persona-Agent",
+            "status": "idle",
+            "persona": persona,
+        },
+        headers=auth_headers(admin_token),
+    )
+    agent_id = create_resp.json()["id"]
+
+    resp = await client.get(
+        f"/api/agents/{agent_id}",
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["persona"]["avatar_color"] == "#bf00ff"
+    assert data["persona"]["personality"] == "Vigilant & Steadfast"
