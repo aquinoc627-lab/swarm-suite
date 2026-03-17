@@ -214,6 +214,7 @@ async def test_update_agent_persona(client, admin_token):
         json={"name": "Update-Persona-Agent", "status": "idle"},
         headers=auth_headers(admin_token),
     )
+    assert create_resp.status_code == 201
     agent_id = create_resp.json()["id"]
 
     persona = {
@@ -254,6 +255,7 @@ async def test_get_agent_with_persona(client, admin_token):
         },
         headers=auth_headers(admin_token),
     )
+    assert create_resp.status_code == 201
     agent_id = create_resp.json()["id"]
 
     resp = await client.get(

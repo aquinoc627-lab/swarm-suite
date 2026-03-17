@@ -82,7 +82,7 @@ class AgentBrain:
     @staticmethod
     async def think(db: AsyncSession, agent_id: str) -> Optional[Dict[str, Any]]:
         if not client:
-            logger.warning("Gemini API key not set. Agent Brain is offline.")
+            logger.warning("Agent Brain is offline (Gemini SDK not installed or API key not set).")
             return None
 
         context = await AgentBrain.get_agent_context(db, agent_id)
