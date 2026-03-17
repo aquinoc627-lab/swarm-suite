@@ -4,7 +4,7 @@ import random
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.agent import Agent
-from app.core.database import SessionLocal
+from app.core.database import async_session
 from app.core.brain import AgentBrain
 
 logger = logging.getLogger(__name__)
@@ -25,7 +25,7 @@ async def agent_brain_loop():
             continue
 
         try:
-            async with SessionLocal() as db:
+            async with async_session() as db:
                 # Get all active agents
                 stmt = select(Agent).where(Agent.status == "active")
                 result = await db.execute(stmt)
