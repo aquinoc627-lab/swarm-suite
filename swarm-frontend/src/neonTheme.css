@@ -15,3 +15,67 @@ h2 {
   color: #44ffe1;
   text-shadow: 0 0 4px #44ffe1, 0 0 8px #44ffe199;
 }
+
+/* Login page */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 1.2em;
+}
+.login-title {
+  color: #44ffe1;
+  font-size: 2.6rem;
+  text-shadow: 0 0 8px #44ffe1, 0 0 24px #44ffe199;
+  margin: 0;
+}
+.login-subtitle {
+  color: #aaa;
+  font-size: 1rem;
+  margin: 0 0 0.8em;
+}
+.login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  width: 260px;
+}
+
+/* Neon buttons */
+.neon-btn {
+  padding: 0.7em 1.4em;
+  border: 2px solid;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  transition: box-shadow 0.2s, background 0.2s;
+  letter-spacing: 0.02em;
+}
+.neon-btn-google {
+  color: #ea4335;
+  border-color: #ea4335;
+}
+.neon-btn-google:hover {
+  background: #ea433522;
+  box-shadow: 0 0 12px #ea4335, 0 0 4px #ea433599;
+}
+.neon-btn-github {
+  color: #c9d1d9;
+  border-color: #c9d1d9;
+}
+.neon-btn-github:hover {
+  background: #c9d1d922;
+  box-shadow: 0 0 12px #c9d1d9, 0 0 4px #c9d1d999;
+}
+.neon-btn-microsoft {
+  color: #00a4ef;
+  border-color: #00a4ef;
+}
+.neon-btn-microsoft:hover {
+  background: #00a4ef22;
+  box-shadow: 0 0 12px #00a4ef, 0 0 4px #00a4ef99;
+}
