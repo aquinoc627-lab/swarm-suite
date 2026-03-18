@@ -15,3 +15,202 @@ h2 {
   color: #44ffe1;
   text-shadow: 0 0 4px #44ffe1, 0 0 8px #44ffe199;
 }
+
+/* Terminal styling */
+.terminal-container {
+  background: #0a0a0a;
+  border: 1px solid #44ffe133;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  position: relative;
+  overflow: hidden;
+}
+.terminal-output {
+  color: #00ff41;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-y: auto;
+}
+.terminal-line { line-height: 1.6; }
+.terminal-header {
+  background: #1a1a1a;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.terminal-dots { display: flex; gap: 6px; }
+.terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+.terminal-dot.red { background: #ff5f57; }
+.terminal-dot.yellow { background: #febc2e; }
+.terminal-dot.green { background: #28c840; }
+
+/* Severity badges */
+.badge-critical { background: #ff000033; color: #ff4d4d; border: 1px solid #ff4d4d44; }
+.badge-high { background: #ff880033; color: #ff8800; border: 1px solid #ff880044; }
+.badge-medium { background: #ffff0033; color: #ffff00; border: 1px solid #ffff0044; }
+.badge-low { background: #00ffff33; color: #44ffe1; border: 1px solid #44ffe144; }
+.badge-info { background: #88888833; color: #888; border: 1px solid #88888844; }
+.severity-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+/* Scan status */
+.status-queued { color: #ffff00; }
+.status-running { color: #44ffe1; animation: pulse 1.5s infinite; }
+.status-completed { color: #00ff88; }
+.status-failed { color: #ff4d4d; }
+.status-cancelled { color: #888; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Tool cards */
+.tool-card {
+  background: #222234;
+  border: 1px solid #44ffe133;
+  border-radius: 10px;
+  padding: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.tool-card:hover {
+  border-color: #44ffe1;
+  box-shadow: 0 0 16px #44ffe133;
+  transform: translateY(-2px);
+}
+.tool-card.danger:hover {
+  border-color: #ff4d4d;
+  box-shadow: 0 0 16px #ff4d4d33;
+}
+
+/* Nav items */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  color: #aaa;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.nav-item:hover, .nav-item.active {
+  background: #44ffe122;
+  color: #44ffe1;
+  text-shadow: 0 0 8px #44ffe1;
+}
+
+/* Cards and panels */
+.neon-card {
+  background: #222234;
+  border: 1px solid #44ffe133;
+  border-radius: 10px;
+  padding: 1.2rem;
+}
+.neon-card:hover {
+  border-color: #44ffe155;
+  box-shadow: 0 0 12px #44ffe122;
+}
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #44ffe1;
+  text-shadow: 0 0 8px #44ffe1;
+}
+.neon-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.neon-table th {
+  color: #44ffe1;
+  border-bottom: 1px solid #44ffe133;
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.neon-table td {
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #ffffff11;
+  color: #ccc;
+  font-size: 0.85rem;
+}
+.neon-table tr:hover td {
+  background: #44ffe108;
+  cursor: pointer;
+}
+.neon-input {
+  background: #181825;
+  border: 1px solid #44ffe133;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  color: #fcfcfc;
+  font-size: 0.9rem;
+  outline: none;
+}
+.neon-input:focus {
+  border-color: #44ffe1;
+  box-shadow: 0 0 8px #44ffe133;
+}
+.neon-btn {
+  background: #44ffe1;
+  color: #181825;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.neon-btn:hover {
+  box-shadow: 0 0 12px #44ffe1;
+}
+.neon-btn.danger {
+  background: #ff4d4d;
+  color: white;
+}
+.neon-btn.outline {
+  background: transparent;
+  border: 1px solid #44ffe1;
+  color: #44ffe1;
+}
+.neon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal-box {
+  background: #222234;
+  border: 1px solid #44ffe155;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 500px;
+  max-width: 95vw;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 0 40px #44ffe122;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #181825; }
+::-webkit-scrollbar-thumb { background: #44ffe133; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #44ffe1; }
