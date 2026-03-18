@@ -12,10 +12,12 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api import agents, analytics, auth, banter, missions, ws
 from app.core.config import (
@@ -29,10 +31,44 @@ from app.core.tasks import agent_brain_loop, set_autonomous_mode, get_autonomous
 from app.core.security import get_current_user
 from app.models.user import User
 
-logging.basicConfig(level=logging.INFO)
+# ---------------------------------------------------------------------------
+# Logging Configuration
+# ---------------------------------------------------------------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format='{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "message": "%(message)s"}',
+)
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Security Middleware
+# ---------------------------------------------------------------------------
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response: Response = await call_next(request)
+        response.headers["X-Frame-Options"] = "SAMEORIGIN"
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-XSS-Protection"] = "1; mode=block"
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+        response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none';"
+        return response
+
+
+class RequestLoggingMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        logger.info(
+            f"method={request.method} path={request.url.path} status={response.status_code} duration={process_time:.4f}s"
+        )
+        return response
+
+
+# ---------------------------------------------------------------------------
+# Lifecycle Hooks
+# ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown lifecycle hooks."""
@@ -56,6 +92,9 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down Swarm Suite API.")
 
 
+# ---------------------------------------------------------------------------
+# Application Instance
+# ---------------------------------------------------------------------------
 app = FastAPI(
     title=APP_TITLE,
     version=APP_VERSION,
@@ -64,8 +103,10 @@ app = FastAPI(
 )
 
 # ---------------------------------------------------------------------------
-# CORS Middleware
+# Middleware Registration
 # ---------------------------------------------------------------------------
+app.add_middleware(RequestLoggingMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,

@@ -1,0 +1,68 @@
+# Swarm Suite — Docker Compose Configuration
+# Orchestrates the entire stack: Backend, Frontend, and PostgreSQL
+
+version: '3.8'
+
+services:
+  # Backend Service (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: swarm-backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://swarm_user:swarm_password@db:5432/swarm_db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - AUTH_MODE=jwt
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    networks:
+      - swarm-network
+
+  # Frontend Service (React + Nginx)
+  frontend:
+    build:
+      context: ./swarm-frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+    container_name: swarm-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - swarm-network
+
+  # Database Service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: swarm-db
+    restart: always
+    environment:
+      - POSTGRES_USER=swarm_user
+      - POSTGRES_PASSWORD=swarm_password
+      - POSTGRES_DB=swarm_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swarm_user -d swarm_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swarm-network
+
+networks:
+  swarm-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
