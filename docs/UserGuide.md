@@ -1,2 +1,2 @@
-# Swarm Platform User Guide
+# theHIVE User Guide
 ...
