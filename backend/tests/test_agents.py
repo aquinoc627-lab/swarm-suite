@@ -162,3 +162,56 @@ async def test_create_agent_unauthenticated(client):
         json={"name": "Unauth-Agent", "status": "idle"},
     )
     assert resp.status_code in (401, 403)
+
+
+@pytest.mark.asyncio
+async def test_create_agent_with_persona(client, admin_token):
+    """Creating an agent with a persona dict should succeed and return persona fields."""
+    resp = await client.post(
+        "/api/agents",
+        json={
+            "name": "Persona-Agent",
+            "status": "idle",
+            "persona": {
+                "avatar_color": "#ff0000",
+                "icon": "brain",
+                "personality": "strategic",
+                "voice_style": "assertive",
+            },
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 201
+    data = resp.json()
+    assert data["name"] == "Persona-Agent"
+    assert data["persona"] is not None
+    assert data["persona"]["icon"] == "brain"
+    assert data["persona"]["personality"] == "strategic"
+
+
+@pytest.mark.asyncio
+async def test_update_agent_with_persona(client, admin_token):
+    """Updating an agent's persona should persist the new persona data."""
+    create_resp = await client.post(
+        "/api/agents",
+        json={"name": "Persona-Update-Agent", "status": "idle"},
+        headers=auth_headers(admin_token),
+    )
+    agent_id = create_resp.json()["id"]
+
+    resp = await client.patch(
+        f"/api/agents/{agent_id}",
+        json={
+            "persona": {
+                "avatar_color": "#00ff00",
+                "icon": "crosshair",
+                "personality": "aggressive",
+                "voice_style": "urgent",
+            }
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["persona"]["icon"] == "crosshair"
+    assert data["persona"]["personality"] == "aggressive"
