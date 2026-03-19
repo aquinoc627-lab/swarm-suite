@@ -1,5 +1,5 @@
 """
-Swarm Suite — Test Configuration & Fixtures
+theHIVE — Test Configuration & Fixtures
 
 Provides:
   - An isolated in-memory SQLite database for each test session

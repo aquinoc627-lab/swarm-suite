@@ -1,0 +1,20 @@
+{
+  "short_name": "theHIVE",
+  "name": "theHIVE - Autonomous AI Command Center",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "2048x2048",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "2048x2048"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#0a0e27"
+}

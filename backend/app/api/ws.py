@@ -1,5 +1,5 @@
 """
-Swarm Suite — WebSocket Endpoint
+theHIVE — WebSocket Endpoint
 
 Provides a single authenticated WebSocket endpoint that supports:
   - Global broadcast subscription (automatic on connect)

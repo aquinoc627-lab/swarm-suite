@@ -1,5 +1,5 @@
 """
-Swarm Suite — ORM Models Package
+theHIVE — ORM Models Package
 
 Re-exports every model so that ``from app.models import *`` gives access to
 the full schema and the declarative Base.

@@ -1,4 +1,4 @@
-# Swarm Suite — Backend Dockerfile
+# theHIVE — Backend Dockerfile
 # Optimized for production with FastAPI and Uvicorn
 
 FROM python:3.11-slim-buster

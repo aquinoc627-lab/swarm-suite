@@ -1,4 +1,4 @@
-# Swarm Suite — Backend Dependencies
+# theHIVE — Backend Dependencies
 fastapi>=0.110.0
 uvicorn[standard]>=0.27.0
 sqlalchemy[asyncio]>=2.0.25

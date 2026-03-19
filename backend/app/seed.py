@@ -1,5 +1,5 @@
 """
-Swarm Suite — Database Seeder
+theHIVE — Database Seeder
 
 Populates the database with sample data for fast demo and development.
 Run with:  python -m app.seed
@@ -51,7 +51,7 @@ async def seed() -> None:
         admin = User(
             id=_uid(),
             username="admin",
-            email="admin@swarm.local",
+            email="admin@theHIVE.local",
             hashed_password=bcrypt.hash("Admin123!"),
             role="admin",
             is_active=True,
@@ -59,7 +59,7 @@ async def seed() -> None:
         operator = User(
             id=_uid(),
             username="operator1",
-            email="operator1@swarm.local",
+            email="operator1@theHIVE.local",
             hashed_password=bcrypt.hash("Operator1!"),
             role="operator",
             is_active=True,

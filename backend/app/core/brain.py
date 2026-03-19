@@ -51,7 +51,7 @@ CODING_TOOLS = {
 ALL_TOOLS = {**AVAILABLE_TOOLS, **CODING_TOOLS}
 
 SYSTEM_PROMPT = """
-You are the "Brain" of an autonomous agent in the Swarm Suite. 
+You are the "Brain" of an autonomous agent in the theHIVE. 
 Your goal is to reason about your current missions and the recent communication feed (Banter), 
 then decide on an action.
 
@@ -64,7 +64,7 @@ You MUST respond in strict JSON format with the following fields:
 - "new_agent_status": A new status for yourself (optional, e.g., "active", "idle", "busy").
 - "mission_updates": A list of objects with {{"mission_id": UUID, "new_status": "pending"|"in_progress"|"completed"|"failed"}} (optional).
 - "tool_use": An object with {{"tool_name": string, "parameters": object}} (optional).
-- "swarm_action": An object with {{"action": "delegate"|"request_help"|"reply", "target_agent_id": UUID, "content": string}} (optional).
+- "theHIVE_action": An object with {{"action": "delegate"|"request_help"|"reply", "target_agent_id": UUID, "content": string}} (optional).
 
 Your Persona:
 Name: {name}
@@ -75,7 +75,7 @@ Icon: {icon}
 Current Context:
 Missions Assigned: {missions}
 Recent Banter Feed: {banter}
-Other Agents in Swarm: {other_agents}
+Other Agents in theHIVE: {other_agents}
 
 RELEVANT MEMORIES (Long-term recall):
 {memories}
@@ -85,11 +85,11 @@ Guidelines:
 2. Be autonomous. If a mission is "pending" and you are "active", move it to "in_progress".
 3. Use tools when you need real-world information or to perform technical tasks (coding, GitHub).
 4. SWARM INTELLIGENCE: 
-   - If a mission is too complex, use "swarm_action": "delegate" to assign a sub-task to another agent.
-   - If you need help, use "swarm_action": "request_help" to ping another agent.
-   - If another agent mentions you or asks for help in the Banter feed, use "swarm_action": "reply" to respond.
+   - If a mission is too complex, use "theHIVE_action": "delegate" to assign a sub-task to another agent.
+   - If you need help, use "theHIVE_action": "request_help" to ping another agent.
+   - If another agent mentions you or asks for help in the Banter feed, use "theHIVE_action": "reply" to respond.
 5. MEMORY PALACE: Use the "RELEVANT MEMORIES" to inform your decisions. If you've solved a similar problem before, reference it.
-6. If you use a tool or swarm action, explain why in your reasoning.
+6. If you use a tool or theHIVE action, explain why in your reasoning.
 7. Be concise. Banter messages should be short and impactful.
 """
 
@@ -302,12 +302,12 @@ class AgentBrain:
                         "data": {"id": str(mission.id), "status": mission.status}
                     })
 
-        # 3. Handle Swarm Action
-        if "swarm_action" in action:
-            swarm_action = action["swarm_action"]
-            target_agent = await db.get(Agent, swarm_action["target_agent_id"])
+        # 3. Handle theHIVE Action
+        if "theHIVE_action" in action:
+            theHIVE_action = action["theHIVE_action"]
+            target_agent = await db.get(Agent, theHIVE_action["target_agent_id"])
             if target_agent:
-                message = f"@{target_agent.name}: {swarm_action['content']}"
+                message = f"@{target_agent.name}: {theHIVE_action['content']}"
                 new_banter = Banter(
                     message=message,
                     message_type="chat",
@@ -320,7 +320,7 @@ class AgentBrain:
                 # Store significant banter in Memory Palace
                 await memory_palace.store_memory(
                     "banter",
-                    f"Agent {agent.name} to {target_agent.name}: {swarm_action['content']}",
+                    f"Agent {agent.name} to {target_agent.name}: {theHIVE_action['content']}",
                     {"sender_id": str(agent.id), "target_id": str(target_agent.id)}
                 )
 

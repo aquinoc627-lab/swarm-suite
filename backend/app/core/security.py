@@ -1,5 +1,5 @@
 """
-Swarm Suite — Security Utilities
+theHIVE — Security Utilities
 
 Provides JWT token creation/verification, password hashing, and
 FastAPI dependencies for authentication and role-based access control.

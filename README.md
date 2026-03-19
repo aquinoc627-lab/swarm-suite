@@ -1,4 +1,4 @@
-# Swarm Suite
+# theHIVE
 
 **Autonomous Orchestration Command Center** — A full-stack platform for managing and coordinating intelligent agents, executing complex missions, and fostering real-time collaboration with a neon-themed, responsive dashboard.
 
@@ -6,7 +6,7 @@
 
 ## Overview
 
-The Swarm Suite is an advanced, AI-powered platform designed to empower autonomous agents with capabilities ranging from real-world tool use and collaborative intelligence to long-term memory and secure code execution. It features a dynamic 3D Agent Lab for creating custom agent personas and a voice-controlled interface for seamless interaction.
+The theHIVE is an advanced, AI-powered platform designed to empower autonomous agents with capabilities ranging from real-world tool use and collaborative intelligence to long-term memory and secure code execution. It features a dynamic 3D Agent Lab for creating custom agent personas and a voice-controlled interface for seamless interaction.
 
 ## Key Features
 
@@ -14,13 +14,13 @@ The Swarm Suite is an advanced, AI-powered platform designed to empower autonomo
 *   **Neon-Themed Dashboard**: A visually stunning, responsive UI with dark mode and glowing accents, optimized for both desktop and mobile.
 *   **Agent & Mission Management**: Full CRUD operations for agents and missions, including hierarchical tasking and agent-to-mission assignments.
 *   **Real-time Banter**: A live communication feed for users and agents, with filtering and persona-driven speech synthesis.
-*   **Analytics & Monitoring**: Comprehensive dashboards for tracking swarm activity, system health, and agent performance.
+*   **Analytics & Monitoring**: Comprehensive dashboards for tracking theHIVE activity, system health, and agent performance.
 
 ### Advanced AI & Autonomy
 *   **Agent Brain (Gemini-Powered)**: Autonomous reasoning, decision-making, and persona-driven actions for all agents.
 *   **Real-World Agency (Tool Use)**: Agents can perform web searches, fetch content, and execute missions by interacting with external tools.
 *   **Voice Interaction**: Control the dashboard with voice commands and hear agents respond in their unique, persona-matched voices.
-*   **Swarm Intelligence**: Agents collaborate on complex missions, delegate sub-tasks, and communicate with each other to achieve collective goals.
+*   **theHIVE Intelligence**: Agents collaborate on complex missions, delegate sub-tasks, and communicate with each other to achieve collective goals.
 *   **Memory Palace (Long-Term Vector Memory)**: Agents possess persistent, semantic recall of past experiences, enabling cross-mission learning and smarter decision-making.
 *   **Autonomous Coding (DevOps Agent)**: Agents can execute code in a secure sandbox, interact with GitHub repositories, and propose code changes.
 
@@ -48,12 +48,12 @@ Ensure you have Docker Desktop installed and running. Then, from the root of the
 docker-compose up -d --build
 ```
 
-This will build and start the entire Swarm Suite stack (PostgreSQL, FastAPI backend, and React frontend via Nginx). Access the frontend at `http://localhost:3000`.
+This will build and start the entire theHIVE stack (PostgreSQL, FastAPI backend, and React frontend via Nginx). Access the frontend at `http://localhost:3000`.
 
 ### Local Development (Without Docker)
 
 1.  **Backend (FastAPI)**: Navigate to the `backend/` directory, install `requirements.txt`, set environment variables (including `GEMINI_API_KEY` and `GITHUB_TOKEN`), run migrations (`alembic upgrade head`), seed data (`python app/seed.py`), and start with `uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`.
-2.  **Frontend (React)**: Navigate to the `swarm-frontend/` directory, install dependencies (`npm install`), set `REACT_APP_API_URL=http://localhost:8000` in a `.env` file, and start with `npm start`.
+2.  **Frontend (React)**: Navigate to the `theHIVE-frontend/` directory, install dependencies (`npm install`), set `REACT_APP_API_URL=http://localhost:8000` in a `.env` file, and start with `npm start`.
 
 ### Demo Credentials
 
@@ -75,7 +75,7 @@ This will build and start the entire Swarm Suite stack (PostgreSQL, FastAPI back
 ## Project Structure
 
 ```
-swarm-suite/
+theHIVE-suite/
 ├── backend/                  # FastAPI backend services
 │   ├── app/                  # Core application logic
 │   │   ├── api/              # REST API endpoints
@@ -87,7 +87,7 @@ swarm-suite/
 │   ├── alembic/              # Database migrations
 │   ├── data/                 # SQLite database (dev) and ChromaDB (vector store)
 │   └── tests/                # Pytest unit and integration tests
-├── swarm-frontend/           # React frontend application
+├── theHIVE-frontend/           # React frontend application
 │   ├── public/               # Static assets
 │   ├── src/                  # React components, hooks, contexts
 │   │   ├── components/       # Reusable UI components

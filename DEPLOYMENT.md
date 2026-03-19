@@ -1,6 +1,6 @@
-# Swarm Suite — Production Deployment Guide
+# theHIVE — Production Deployment Guide
 
-This guide provides instructions for deploying the Swarm Suite in a production environment using Docker and Nginx.
+This guide provides instructions for deploying the theHIVE in a production environment using Docker and Nginx.
 
 ## 1. Prerequisites
 - Docker and Docker Compose installed on the target server.
@@ -14,23 +14,23 @@ Create a `.env` file in the root directory with the following variables:
 # Backend Configuration
 SECRET_KEY=your-production-secret-key-here
 CORS_ORIGINS=https://your-domain.com
-DATABASE_URL=postgresql+asyncpg://swarm_user:swarm_password@db:5432/swarm_db
+DATABASE_URL=postgresql+asyncpg://theHIVE_user:theHIVE_password@db:5432/theHIVE_db
 GEMINI_API_KEY=your-gemini-api-key-here
 
 # Frontend Configuration
 REACT_APP_API_URL=https://api.your-domain.com
 
 # Database Configuration
-POSTGRES_USER=swarm_user
-POSTGRES_PASSWORD=swarm_password
-POSTGRES_DB=swarm_db
+POSTGRES_USER=theHIVE_user
+POSTGRES_PASSWORD=theHIVE_password
+POSTGRES_DB=theHIVE_db
 ```
 
 ## 3. Deployment Steps
 1.  **Clone the Repository**:
     ```bash
-    git clone https://github.com/aquinoc627-lab/swarm-suite.git
-    cd swarm-suite
+    git clone https://github.com/aquinoc627-lab/theHIVE-suite.git
+    cd theHIVE-suite
     ```
 
 2.  **Build and Start the Containers**:

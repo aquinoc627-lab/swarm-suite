@@ -1,5 +1,5 @@
 """
-Swarm Suite — Banter API
+theHIVE — Banter API
 
 Endpoints:
   GET    /api/banter       — list banter messages (filterable by mission, agent, sender, type)

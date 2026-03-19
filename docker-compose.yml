@@ -1,4 +1,4 @@
-# Swarm Suite — Docker Compose Configuration
+# theHIVE — Docker Compose Configuration
 # Orchestrates the entire stack: Backend, Frontend, and PostgreSQL
 
 version: '3.8'
@@ -9,10 +9,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: swarm-backend
+    container_name: theHIVE-backend
     restart: always
     environment:
-      - DATABASE_URL=postgresql+asyncpg://swarm_user:swarm_password@db:5432/swarm_db
+      - DATABASE_URL=postgresql+asyncpg://theHIVE_user:theHIVE_password@db:5432/theHIVE_db
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
       - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
       - AUTH_MODE=jwt
@@ -23,45 +23,45 @@ services:
     ports:
       - "8000:8000"
     networks:
-      - swarm-network
+      - theHIVE-network
 
   # Frontend Service (React + Nginx)
   frontend:
     build:
-      context: ./swarm-frontend
+      context: ./theHIVE-frontend
       dockerfile: Dockerfile
       args:
         - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
-    container_name: swarm-frontend
+    container_name: theHIVE-frontend
     restart: always
     depends_on:
       - backend
     ports:
       - "3000:80"
     networks:
-      - swarm-network
+      - theHIVE-network
 
   # Database Service (PostgreSQL)
   db:
     image: postgres:15-alpine
-    container_name: swarm-db
+    container_name: theHIVE-db
     restart: always
     environment:
-      - POSTGRES_USER=swarm_user
-      - POSTGRES_PASSWORD=swarm_password
-      - POSTGRES_DB=swarm_db
+      - POSTGRES_USER=theHIVE_user
+      - POSTGRES_PASSWORD=theHIVE_password
+      - POSTGRES_DB=theHIVE_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U swarm_user -d swarm_db"]
+      test: ["CMD-SHELL", "pg_isready -U theHIVE_user -d theHIVE_db"]
       interval: 5s
       timeout: 5s
       retries: 5
     networks:
-      - swarm-network
+      - theHIVE-network
 
 networks:
-  swarm-network:
+  theHIVE-network:
     driver: bridge
 
 volumes:

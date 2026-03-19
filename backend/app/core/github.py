@@ -1,5 +1,5 @@
 """
-Swarm Suite — GitHub API Integration
+theHIVE — GitHub API Integration
 
 Provides a bridge for agents to interact with GitHub repositories.
 Includes repository analysis, file fetching, and Pull Request generation.

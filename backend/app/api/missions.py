@@ -1,5 +1,5 @@
 """
-Swarm Suite — Missions API
+theHIVE — Missions API
 
 Endpoints:
   GET    /api/missions              — list all missions (filterable)

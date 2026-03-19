@@ -1,5 +1,5 @@
 """
-Swarm Suite — Async Database Engine & Session Factory
+theHIVE — Async Database Engine & Session Factory
 
 Provides:
   - ``engine``       — the global async SQLAlchemy engine

@@ -1,5 +1,5 @@
 """
-Swarm Suite — Banter Model
+theHIVE — Banter Model
 
 Represents a message in the real-time communication feed.  Banter is
 polymorphic: a message can be associated with a specific mission, a specific

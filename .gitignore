@@ -13,9 +13,9 @@ backend/data/
 
 # Node
 node_modules/
-swarm-frontend/node_modules/
-swarm-frontend/build/
-swarm-frontend/.env.local
+theHIVE-frontend/node_modules/
+theHIVE-frontend/build/
+theHIVE-frontend/.env.local
 build/
 
 # IDE

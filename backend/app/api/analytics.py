@@ -1,5 +1,5 @@
 """
-Swarm Suite — Analytics API
+theHIVE — Analytics API
 
 Endpoints:
   GET /api/analytics/overview    — high-level counts and status breakdown

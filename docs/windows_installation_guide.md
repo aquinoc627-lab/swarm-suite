@@ -1,6 +1,6 @@
-# Swarm Suite: Windows 11 Installation & Deployment Guide
+# theHIVE: Windows 11 Installation & Deployment Guide
 
-This guide provides detailed instructions for setting up and deploying the Swarm Suite on a Windows 11 environment. It covers both local development setup and Docker-based deployment, ensuring a smooth experience for users on Microsoft's latest operating system.
+This guide provides detailed instructions for setting up and deploying the theHIVE on a Windows 11 environment. It covers both local development setup and Docker-based deployment, ensuring a smooth experience for users on Microsoft's latest operating system.
 
 ## 1. Prerequisites
 
@@ -11,7 +11,7 @@ Before proceeding with the installation, ensure your Windows 11 system meets the
 *   **Docker Desktop**: Provides the Docker Engine and Docker Compose for containerized deployment [2].
 *   **Node.js (LTS version)**: Required for the React frontend development and build process [3].
 *   **Python 3.11+**: Necessary for the FastAPI backend [4].
-*   **Git**: For cloning the Swarm Suite repository [5].
+*   **Git**: For cloning the theHIVE repository [5].
 
 ### 1.1. Installing WSL 2
 
@@ -49,10 +49,10 @@ Before proceeding with the installation, ensure your Windows 11 system meets the
 
 1.  Open a Command Prompt or PowerShell window.
 2.  Navigate to your desired development directory.
-3.  Clone the Swarm Suite repository:
+3.  Clone the theHIVE repository:
     ```bash
-    git clone https://github.com/aquinoc627-lab/swarm-suite.git
-    cd swarm-suite
+    git clone https://github.com/aquinoc627-lab/theHIVE-suite.git
+    cd theHIVE-suite
     ```
 
 ## 3. Local Development Setup (Without Docker)
@@ -76,7 +76,7 @@ This method allows you to run the backend and frontend services independently fo
     ```
 4.  Set environment variables. Create a `.env` file in the `backend` directory with the following (replace with your actual keys):
     ```ini
-    DATABASE_URL="sqlite+aiosqlite:///./data/swarm.db"
+    DATABASE_URL="sqlite+aiosqlite:///./data/theHIVE.db"
     SECRET_KEY="your_super_secret_key_for_jwt"
     ALGORITHM="HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -102,13 +102,13 @@ This method allows you to run the backend and frontend services independently fo
 1.  Open a **new** Command Prompt or PowerShell window.
 2.  Navigate to the frontend directory:
     ```bash
-    cd swarm-suite\swarm-frontend
+    cd theHIVE-suite\theHIVE-frontend
     ```
 3.  Install frontend dependencies:
     ```bash
     npm install
     ```
-4.  Set environment variables. Create a `.env` file in the `swarm-frontend` directory with the following:
+4.  Set environment variables. Create a `.env` file in the `theHIVE-frontend` directory with the following:
     ```ini
     REACT_APP_API_URL=http://localhost:8000
     ```
@@ -120,19 +120,19 @@ This method allows you to run the backend and frontend services independently fo
 
 ## 4. Docker-based Deployment (Recommended)
 
-This method uses Docker Compose to run the entire Swarm Suite stack (FastAPI backend, React frontend via Nginx, and PostgreSQL database) in isolated containers.
+This method uses Docker Compose to run the entire theHIVE stack (FastAPI backend, React frontend via Nginx, and PostgreSQL database) in isolated containers.
 
 1.  Ensure Docker Desktop is running.
-2.  Navigate to the root of the `swarm-suite` repository:
+2.  Navigate to the root of the `theHIVE-suite` repository:
     ```bash
-    cd swarm-suite
+    cd theHIVE-suite
     ```
-3.  Create a `.env` file in the root directory of the `swarm-suite` repository with the following (replace placeholders):
+3.  Create a `.env` file in the root directory of the `theHIVE-suite` repository with the following (replace placeholders):
     ```ini
-    POSTGRES_USER=swarmuser
-    POSTGRES_PASSWORD=swarmpassword
-    POSTGRES_DB=swarmdb
-    DATABASE_URL=postgresql+asyncpg://swarmuser:swarmpassword@db:5432/swarmdb
+    POSTGRES_USER=theHIVEuser
+    POSTGRES_PASSWORD=theHIVEpassword
+    POSTGRES_DB=theHIVEdb
+    DATABASE_URL=postgresql+asyncpg://theHIVEuser:theHIVEpassword@db:5432/theHIVEdb
     SECRET_KEY="your_super_secret_key_for_jwt"
     ALGORITHM="HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES=30
@@ -152,7 +152,7 @@ This method uses Docker Compose to run the entire Swarm Suite stack (FastAPI bac
     *   Run database migrations and seed data in the backend container.
     *   Start the FastAPI backend and Nginx-served React frontend.
 
-5.  Access the Swarm Suite:
+5.  Access the theHIVE:
     *   Frontend: `http://localhost:3000`
     *   Backend API: `http://localhost:8000`
 

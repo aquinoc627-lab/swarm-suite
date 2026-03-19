@@ -1,5 +1,5 @@
 """
-Swarm Suite — Authentication API
+theHIVE — Authentication API
 
 Endpoints:
   POST /api/auth/register  — create a new user (admin only)

@@ -1,7 +1,7 @@
 """
-Swarm Suite — Agent Model
+theHIVE — Agent Model
 
-Represents an autonomous agent within the swarm.  Agents can be assigned to
+Represents an autonomous agent within the theHIVE.  Agents can be assigned to
 one or more missions via the ``agent_missions`` junction table.
 
 Status lifecycle:  idle → active → idle | offline | error

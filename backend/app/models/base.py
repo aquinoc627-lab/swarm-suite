@@ -1,5 +1,5 @@
 """
-Swarm Suite — Declarative Base & Common Mixins
+theHIVE — Declarative Base & Common Mixins
 
 Provides:
   - ``Base``           — the declarative base class for all ORM models
@@ -21,7 +21,7 @@ from sqlalchemy.orm import (
 
 
 class Base(DeclarativeBase):
-    """Declarative base for all Swarm Suite ORM models."""
+    """Declarative base for all theHIVE ORM models."""
     pass
 
 
