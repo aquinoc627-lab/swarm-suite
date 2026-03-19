@@ -46,6 +46,7 @@ POSTGRES_DB=theHIVE_db
 - **SSL/TLS**: Use a reverse proxy like Nginx or Traefik to handle SSL termination.
 - **Firewall**: Restrict access to ports 8000 and 5432, only allowing traffic from the frontend container and trusted sources.
 - **Database Backups**: Set up a cron job to perform regular PostgreSQL backups.
+- **Tool Arsenal Execution**: The Tool Arsenal engine includes built-in command sanitization and confirmation gates for dangerous tools (e.g., Metasploit, Cobalt Strike). Ensure that only trusted users are granted the `admin` role, as this role is required to bypass confirmation gates.
 
 ## 5. Monitoring & Logs
 - View logs for all services: `docker-compose logs -f`

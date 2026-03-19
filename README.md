@@ -18,7 +18,7 @@ The theHIVE is an advanced, AI-powered platform designed to empower autonomous a
 
 ### Advanced AI & Autonomy
 *   **Agent Brain (Gemini-Powered)**: Autonomous reasoning, decision-making, and persona-driven actions for all agents.
-*   **Real-World Agency (Tool Use)**: Agents can perform web searches, fetch content, and execute missions by interacting with external tools.
+*   **Tool Arsenal & Execution Engine**: A curated catalog of 44+ cybersecurity tools (Nmap, Metasploit, etc.) with OS-aware command generation and security confirmation gates. Agents can be assigned these tools to execute complex missions.
 *   **Voice Interaction**: Control the dashboard with voice commands and hear agents respond in their unique, persona-matched voices.
 *   **theHIVE Intelligence**: Agents collaborate on complex missions, delegate sub-tasks, and communicate with each other to achieve collective goals.
 *   **Memory Palace (Long-Term Vector Memory)**: Agents possess persistent, semantic recall of past experiences, enabling cross-mission learning and smarter decision-making.
@@ -95,6 +95,7 @@ theHIVE-suite/
 │   │   ├── AgentLab.jsx      # 3D Agent Creator UI
 │   │   ├── Hologram3D.jsx    # Three.js 3D Agent Hologram component
 │   │   ├── MemorySearch.jsx  # Memory Palace search UI
+│   │   ├── ToolArsenal.jsx   # Cybersecurity Tool Catalog UI
 │   │   ├── VoiceControl.jsx  # Voice command widget
 │   │   └── neonTheme.css     # Global neon dark theme styles
 │   └── package.json

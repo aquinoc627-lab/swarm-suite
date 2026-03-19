@@ -56,7 +56,14 @@ The **Banter Panel** is the real-time chat and message feed. It supports:
 *   **Assign/Revoke Missions**: Easily manage mission assignments for each agent.
 *   **Trigger Brain**: Manually prompt an agent to reason and act immediately.
 
-### 3.5. Analytics Widgets
+### 3.5. Tool Arsenal
+
+The **Tool Arsenal** is a dedicated interface for browsing and managing the platform's cybersecurity capabilities:
+*   **Interactive Catalog**: Browse tools by category, search by name, or filter by supported OS and severity level.
+*   **Command Generation**: Select a tool, fill in the required parameters (e.g., target IP, scan type), and the platform will securely generate the exact command needed for execution.
+*   **Agent Assignment**: Directly assign a generated tool command to a specific agent for execution as part of a mission.
+
+### 3.6. Analytics Widgets
 
 The **Analytics Widgets** provide advanced insights into the theHIVE's performance and system health. This includes:
 *   **Activity Graphs**: Visualize mission and agent activity over time.
@@ -74,12 +81,14 @@ The **Agent Brain** is the core intelligence layer, powered by the Gemini API. I
 *   **Persona-Driven Actions**: Each agent acts and communicates according to its unique persona (e.g., "Stealthy & Precise", "Analytical & Logical").
 *   **Autonomous Mode**: A global toggle (accessible via the Notification Center) that enables agents to act and communicate without direct user intervention.
 
-### 4.2. Real-World Agency (Tool Use)
+### 4.2. Real-World Agency & Tool Arsenal
 
-Agents are equipped with a **Tool Execution Engine** allowing them to interact with the external world:
-*   **Web Search**: Agents can perform real-time internet searches to gather information relevant to their missions.
-*   **Content Fetching**: Agents can fetch and analyze content from URLs, summarizing key information.
-*   **Autonomous Mission Execution**: Agents use these tools to complete missions (e.g., researching a topic, analyzing a website) and report their findings.
+Agents are equipped with a comprehensive **Tool Arsenal** and execution engine, allowing them to interact with the external world and perform advanced cybersecurity operations:
+*   **Curated Tool Catalog**: Access to 44+ pre-configured pen testing and cybersecurity tools across 10 categories (Recon, Web, Exploitation, Passwords, OSINT, Wireless, Network, Post-Exploitation, Darknet, AI Ops).
+*   **OS-Aware Execution**: Tools automatically generate the correct command syntax for the target environment (Linux, Windows, or Android).
+*   **Security & Confirmation Gates**: Tools are categorized by severity (`info`, `warning`, `danger`). Dangerous tools (like Metasploit or Cobalt Strike) require explicit admin confirmation before execution, preventing accidental destructive actions.
+*   **Web Search & Content Fetching**: Agents can perform real-time internet searches and fetch content from URLs to gather intelligence.
+*   **Autonomous Mission Execution**: Agents use these tools to complete missions (e.g., researching a topic, analyzing a website, running a vulnerability scan) and report their findings back to the Banter feed.
 
 ### 4.3. Voice Interaction
 
