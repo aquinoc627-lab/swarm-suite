@@ -293,7 +293,6 @@ async def generate_tool_command(
                 "status": metadata.get("status"),
             },
         )
-        await db.commit()
 
         return metadata
 
@@ -348,7 +347,6 @@ async def confirm_and_generate(
                 "severity": metadata.get("severity"),
             },
         )
-        await db.commit()
 
         logger.warning(
             f"DANGEROUS TOOL CONFIRMED: user={current_user.username} "

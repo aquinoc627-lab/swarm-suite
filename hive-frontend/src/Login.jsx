@@ -60,9 +60,6 @@ export default function Login() {
             {loading ? "Authenticating..." : "Login"}
           </button>
         </form>
-        <p style={{ marginTop: 20, fontSize: 12, color: "var(--text-muted)" }}>
-          Demo: admin / Admin123! &nbsp;|&nbsp; operator1 / Operator1!
-        </p>
       </div>
     </div>
   );

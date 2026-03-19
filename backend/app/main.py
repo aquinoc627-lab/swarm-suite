@@ -26,10 +26,12 @@ from app.core.config import (
     APP_VERSION,
     CORS_ORIGINS,
 )
-from app.core.database import init_db
+from app.core.database import init_db, get_db
 from app.core.tasks import agent_brain_loop, set_autonomous_mode, get_autonomous_mode
 from app.core.security import get_current_user
 from app.models.user import User
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
 
 # ---------------------------------------------------------------------------
 # Logging Configuration
@@ -111,8 +113,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # ---------------------------------------------------------------------------
@@ -142,9 +144,15 @@ async def root():
 
 
 @app.get("/api/health", tags=["Health"])
-async def health_check():
-    """API health check endpoint."""
-    return {"status": "ok"}
+async def health_check(db: AsyncSession = Depends(get_db)):
+    """API health check endpoint with database connectivity verification."""
+    try:
+        await db.execute(text("SELECT 1"))
+        db_status = "ok"
+    except Exception as exc:
+        logger.error("Database health check failed: %s", exc)
+        db_status = "error"
+    return {"status": "ok", "database": db_status}
 
 # ---------------------------------------------------------------------------
 # Autonomous Mode Control

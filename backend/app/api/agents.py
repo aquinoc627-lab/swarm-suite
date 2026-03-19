@@ -75,7 +75,7 @@ async def create_agent(
         name=body.name,
         description=body.description,
         status=body.status.value,
-        persona=body.persona,
+        persona=body.persona.model_dump() if body.persona else None,
         created_by=current_user.id,
     )
     db.add(agent)
