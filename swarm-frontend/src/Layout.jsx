@@ -12,6 +12,7 @@ import {
   MdLogout,
   MdMenu,
   MdClose,
+  MdBuild,
 } from "react-icons/md";
 
 export default function Layout() {
@@ -102,6 +103,9 @@ export default function Layout() {
           </NavLink>
           <NavLink to="/analytics" onClick={() => setSidebarOpen(false)}>
             <MdBarChart /> <span>Analytics</span>
+          </NavLink>
+          <NavLink to="/lab" onClick={() => setSidebarOpen(false)}>
+            <MdBuild /> <span>Agent Lab</span>
           </NavLink>
 
           <div style={{ flex: 1 }} />

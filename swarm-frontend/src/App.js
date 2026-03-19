@@ -10,6 +10,7 @@ import Missions from "./Missions";
 import Agents from "./Agents";
 import Banter from "./Banter";
 import Analytics from "./Analytics";
+import AgentLab from "./AgentLab";
 import "./neonTheme.css";
 
 const queryClient = new QueryClient({
@@ -60,6 +61,7 @@ function AppRoutes() {
         <Route index element={<SwarmView />} />
         <Route path="missions" element={<Missions />} />
         <Route path="agents" element={<Agents />} />
+        <Route path="lab" element={<AgentLab />} />
         <Route path="banter" element={<Banter />} />
         <Route path="analytics" element={<Analytics />} />
       </Route>

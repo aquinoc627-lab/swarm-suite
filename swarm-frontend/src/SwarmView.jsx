@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { analyticsAPI, agentsAPI, missionsAPI, banterAPI } from "./api";
 import { useWebSocket } from "./useWebSocket";
 import AgentAvatar from "./AgentAvatar";
+import { Hologram3DCanvas } from "./Hologram3D";
 import SwarmGraph from "./SwarmGraph";
 import {
   MdSmartToy,
