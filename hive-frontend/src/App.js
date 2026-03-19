@@ -11,6 +11,7 @@ import Agents from "./Agents";
 import Banter from "./Banter";
 import Analytics from "./Analytics";
 import AgentLab from "./AgentLab";
+import ToolArsenal from "./ToolArsenal";
 import "./neonTheme.css";
 
 const queryClient = new QueryClient({
@@ -62,6 +63,7 @@ function AppRoutes() {
         <Route path="missions" element={<Missions />} />
         <Route path="agents" element={<Agents />} />
         <Route path="lab" element={<AgentLab />} />
+        <Route path="arsenal" element={<ToolArsenal />} />
         <Route path="banter" element={<Banter />} />
         <Route path="analytics" element={<Analytics />} />
       </Route>

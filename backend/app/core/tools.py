@@ -89,27 +89,13 @@ class ToolService:
         return text[:max_length] + "..."
 
 # Registry of available tools for the Agent Brain
-AVAILABLE_TOOLS = [
-    {
-        "name": "web_search",
+AVAILABLE_TOOLS = {
+    "web_search": {
         "description": "Search the internet for real-time information, news, or facts.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "query": {"type": "string", "description": "The search query string."}
-            },
-            "required": ["query"]
-        }
+        "parameters": {"query": "string (The search query string)"}
     },
-    {
-        "name": "fetch_content",
+    "fetch_content": {
         "description": "Retrieve the text content from a specific URL for analysis.",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "url": {"type": "string", "description": "The full URL to fetch content from."}
-            },
-            "required": ["url"]
-        }
+        "parameters": {"url": "string (The full URL to fetch content from)"}
     }
-]
+}

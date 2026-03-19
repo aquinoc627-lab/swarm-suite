@@ -113,4 +113,27 @@ export const autonomousAPI = {
   toggle: (enabled) => api.post(`/api/autonomous?enabled=${enabled}`),
 };
 
+// ── Tool Arsenal ─────────────────────────────────────────────────
+export const toolsAPI = {
+  list: (params) => api.get("/api/tools", { params }),
+  categories: () => api.get("/api/tools/categories"),
+  stats: () => api.get("/api/tools/stats"),
+  get: (id) => api.get(`/api/tools/${id}`),
+  byOS: (os) => api.get(`/api/tools/os/${os}`),
+  search: (query) => api.post("/api/tools/search", { query }),
+  generate: (toolId, targetOs, params) =>
+    api.post("/api/tools/generate", {
+      tool_id: toolId,
+      target_os: targetOs,
+      params,
+    }),
+  confirm: (toolId, targetOs, params) =>
+    api.post("/api/tools/confirm", {
+      tool_id: toolId,
+      target_os: targetOs,
+      params,
+      confirmation_code: "CONFIRM",
+    }),
+};
+
 export default api;

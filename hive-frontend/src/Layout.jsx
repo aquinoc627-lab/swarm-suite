@@ -14,6 +14,7 @@ import {
   MdMenu,
   MdClose,
   MdBuild,
+  MdSecurity,
 } from "react-icons/md";
 
 export default function Layout() {
@@ -107,6 +108,9 @@ export default function Layout() {
           </NavLink>
           <NavLink to="/lab" onClick={() => setSidebarOpen(false)}>
             <MdBuild /> <span>Agent Lab</span>
+          </NavLink>
+          <NavLink to="/arsenal" onClick={() => setSidebarOpen(false)}>
+            <MdSecurity /> <span>Tool Arsenal</span>
           </NavLink>
 
           <div style={{ flex: 1 }} />
