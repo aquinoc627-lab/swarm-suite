@@ -5,6 +5,7 @@ import { useWebSocket } from "./useWebSocket";
 import AgentAvatar from "./AgentAvatar";
 import { Hologram3DCanvas } from "./Hologram3D";
 import SwarmGraph from "./SwarmGraph";
+import ARHologramViewer from "./Hologram3DXR";
 import {
   MdSmartToy,
   MdRocketLaunch,
@@ -12,12 +13,15 @@ import {
   MdPeople,
   MdHub,
   MdGridView,
+  MdViewInAr,
 } from "react-icons/md";
 
 export default function SwarmView() {
   const queryClient = useQueryClient();
   const [selectedAgent, setSelectedAgent] = useState(null);
   const [activeTab, setActiveTab] = useState("grid"); // "grid" or "collaboration"
+  const [arMode, setArMode] = useState(false);
+  const [arAgent, setArAgent] = useState(null);
 
   const onWsMessage = useCallback(
     (msg) => {
@@ -200,7 +204,7 @@ export default function SwarmView() {
                   listening={listeningAgentIds.has(selectedAgent.id)}
                 />
                 <div style={{ flex: 1 }}>
-                  <table className="data-table" style={{ marginBottom: 0 }}>
+                  <table className="data-table" style={{ marginBottom: 16 }}>
                     <tbody>
                       <tr>
                         <td style={{ color: "var(--text-muted)", width: 120 }}>Status</td>
@@ -230,6 +234,16 @@ export default function SwarmView() {
                       </tr>
                     </tbody>
                   </table>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      setArAgent(selectedAgent);
+                      setArMode(true);
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <MdViewInAr /> View in AR
+                  </button>
                 </div>
               </div>
             </div>
@@ -271,6 +285,17 @@ export default function SwarmView() {
         </>
       ) : (
         <SwarmGraph />
+      )}
+
+      {/* AR Mode */}
+      {arMode && arAgent && (
+        <ARHologramViewer
+          agent={arAgent}
+          onClose={() => {
+            setArMode(false);
+            setArAgent(null);
+          }}
+        />
       )}
     </div>
   );
