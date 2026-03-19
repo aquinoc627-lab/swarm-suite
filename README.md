@@ -53,7 +53,7 @@ This will build and start the entire theHIVE stack (PostgreSQL, FastAPI backend,
 ### Local Development (Without Docker)
 
 1.  **Backend (FastAPI)**: Navigate to the `backend/` directory, install `requirements.txt`, set environment variables (including `GEMINI_API_KEY` and `GITHUB_TOKEN`), run migrations (`alembic upgrade head`), seed data (`python app/seed.py`), and start with `uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`.
-2.  **Frontend (React)**: Navigate to the `theHIVE-frontend/` directory, install dependencies (`npm install`), set `REACT_APP_API_URL=http://localhost:8000` in a `.env` file, and start with `npm start`.
+2.  **Frontend (React)**: Navigate to the `hive-frontend/` directory, install dependencies (`npm install`), set `REACT_APP_API_URL=http://localhost:8000` in a `.env` file, and start with `npm start`.
 
 ### Demo Credentials
 
@@ -75,7 +75,7 @@ This will build and start the entire theHIVE stack (PostgreSQL, FastAPI backend,
 ## Project Structure
 
 ```
-theHIVE-suite/
+theHIVE/
 ├── backend/                  # FastAPI backend services
 │   ├── app/                  # Core application logic
 │   │   ├── api/              # REST API endpoints
@@ -87,7 +87,7 @@ theHIVE-suite/
 │   ├── alembic/              # Database migrations
 │   ├── data/                 # SQLite database (dev) and ChromaDB (vector store)
 │   └── tests/                # Pytest unit and integration tests
-├── theHIVE-frontend/           # React frontend application
+├── hive-frontend/              # React frontend application
 │   ├── public/               # Static assets
 │   ├── src/                  # React components, hooks, contexts
 │   │   ├── components/       # Reusable UI components
@@ -104,10 +104,10 @@ theHIVE-suite/
 │   ├── erd.png
 │   ├── user_manual.md
 │   └── windows_installation_guide.md
+├── logos/                    # Brand logo assets
 ├── scripts/                  # Utility scripts (e.g., security_audit.sh)
-├── .env.example              # Example environment variables
+├── .env.example              # Environment variable template
 ├── docker-compose.yml        # Docker Compose configuration
-├── Dockerfile                # Dockerfile for backend
 ├── DEPLOYMENT.md             # General deployment guide
 └── README.md                 # This file
 ```

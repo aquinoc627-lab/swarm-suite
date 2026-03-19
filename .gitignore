@@ -11,11 +11,11 @@ env/
 # Backend data
 backend/data/
 
-# Node
+# Node / Frontend
 node_modules/
-theHIVE-frontend/node_modules/
-theHIVE-frontend/build/
-theHIVE-frontend/.env.local
+hive-frontend/node_modules/
+hive-frontend/build/
+hive-frontend/.env.local
 build/
 
 # IDE
@@ -34,5 +34,8 @@ Thumbs.db
 # Archives
 *.zip
 
-# Env
+# Environment / Secrets
+.env
+.env.local
 .env.production
+!.env.example

@@ -145,4 +145,4 @@ Refer to the `windows_installation_guide.md` or `DEPLOYMENT.md` for specific tro
 
 ## References
 
-[1] theHIVE GitHub Repository | [https://github.com/aquinoc627-lab/theHIVE-suite](https://github.com/aquinoc627-lab/theHIVE-suite)
+[1] theHIVE GitHub Repository | [https://github.com/aquinoc627-lab/swarm-suite](https://github.com/aquinoc627-lab/swarm-suite)

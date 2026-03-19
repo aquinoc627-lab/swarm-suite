@@ -51,8 +51,8 @@ Before proceeding with the installation, ensure your Windows 11 system meets the
 2.  Navigate to your desired development directory.
 3.  Clone the theHIVE repository:
     ```bash
-    git clone https://github.com/aquinoc627-lab/theHIVE-suite.git
-    cd theHIVE-suite
+    git clone https://github.com/aquinoc627-lab/swarm-suite.git
+    cd swarm-suite
     ```
 
 ## 3. Local Development Setup (Without Docker)
@@ -102,13 +102,13 @@ This method allows you to run the backend and frontend services independently fo
 1.  Open a **new** Command Prompt or PowerShell window.
 2.  Navigate to the frontend directory:
     ```bash
-    cd theHIVE-suite\theHIVE-frontend
+    cd swarm-suite\hive-frontend
     ```
 3.  Install frontend dependencies:
     ```bash
     npm install
     ```
-4.  Set environment variables. Create a `.env` file in the `theHIVE-frontend` directory with the following:
+4.  Set environment variables. Create a `.env` file in the `hive-frontend` directory with the following:
     ```ini
     REACT_APP_API_URL=http://localhost:8000
     ```
@@ -123,11 +123,11 @@ This method allows you to run the backend and frontend services independently fo
 This method uses Docker Compose to run the entire theHIVE stack (FastAPI backend, React frontend via Nginx, and PostgreSQL database) in isolated containers.
 
 1.  Ensure Docker Desktop is running.
-2.  Navigate to the root of the `theHIVE-suite` repository:
+2.  Navigate to the root of the `swarm-suite` repository:
     ```bash
-    cd theHIVE-suite
+    cd swarm-suite
     ```
-3.  Create a `.env` file in the root directory of the `theHIVE-suite` repository with the following (replace placeholders):
+3.  Create a `.env` file in the root directory (or copy `.env.example`) with the following (replace placeholders):
     ```ini
     POSTGRES_USER=theHIVEuser
     POSTGRES_PASSWORD=theHIVEpassword

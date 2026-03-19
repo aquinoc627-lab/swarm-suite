@@ -8,7 +8,7 @@ This guide provides instructions for deploying the theHIVE in a production envir
 - SSL/TLS certificates (e.g., from Let's Encrypt).
 
 ## 2. Environment Configuration
-Create a `.env` file in the root directory with the following variables:
+Create a `.env` file in the root directory (or copy `.env.example` and edit it):
 
 ```env
 # Backend Configuration
@@ -29,8 +29,8 @@ POSTGRES_DB=theHIVE_db
 ## 3. Deployment Steps
 1.  **Clone the Repository**:
     ```bash
-    git clone https://github.com/aquinoc627-lab/theHIVE-suite.git
-    cd theHIVE-suite
+    git clone https://github.com/aquinoc627-lab/swarm-suite.git
+    cd swarm-suite
     ```
 
 2.  **Build and Start the Containers**:

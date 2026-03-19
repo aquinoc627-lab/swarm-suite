@@ -20,6 +20,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.audit import record_audit
 from app.core.database import get_db
@@ -52,7 +53,7 @@ async def list_missions(
     _user: User = Depends(get_current_user),
 ):
     """List all missions, optionally filtered by status, priority, and parent_id."""
-    stmt = select(Mission).order_by(Mission.created_at.desc())
+    stmt = select(Mission).options(selectinload(Mission.sub_tasks)).order_by(Mission.created_at.desc())
     if status_filter:
         stmt = stmt.where(Mission.status == status_filter.value)
     if priority:
@@ -112,7 +113,7 @@ async def get_mission(
     _user: User = Depends(get_current_user),
 ):
     """Get a single mission by ID."""
-    result = await db.execute(select(Mission).where(Mission.id == mission_id))
+    result = await db.execute(select(Mission).options(selectinload(Mission.sub_tasks)).where(Mission.id == mission_id))
     mission = result.scalar_one_or_none()
     if mission is None:
         raise HTTPException(status_code=404, detail="Mission not found")
@@ -128,7 +129,7 @@ async def update_mission(
     current_user: User = Depends(get_current_user),
 ):
     """Update an existing mission."""
-    result = await db.execute(select(Mission).where(Mission.id == mission_id))
+    result = await db.execute(select(Mission).options(selectinload(Mission.sub_tasks)).where(Mission.id == mission_id))
     mission = result.scalar_one_or_none()
     if mission is None:
         raise HTTPException(status_code=404, detail="Mission not found")
