@@ -4,6 +4,7 @@ import { analyticsAPI, agentsAPI, missionsAPI, banterAPI } from "./api";
 import { useWebSocket } from "./useWebSocket";
 import AgentAvatar from "./AgentAvatar";
 import { Hologram3DCanvas } from "./Hologram3D";
+import HologramSwarm from "./HologramSwarm";
 import AutonomousGraph from "./AutonomousGraph";
 import ARHologramViewer from "./Hologram3DXR";
 import {
@@ -14,12 +15,13 @@ import {
   MdHub,
   MdGridView,
   MdViewInAr,
+  MdBubbleChart,
 } from "react-icons/md";
 
 export default function AutonomousView() {
   const queryClient = useQueryClient();
   const [selectedAgent, setSelectedAgent] = useState(null);
-  const [activeTab, setActiveTab] = useState("grid"); // "grid" or "collaboration"
+  const [activeTab, setActiveTab] = useState("grid"); // "grid", "warroom", or "collaboration"
   const [arMode, setArMode] = useState(false);
   const [arAgent, setArAgent] = useState(null);
 
@@ -133,13 +135,20 @@ export default function AutonomousView() {
       </div>
 
       {/* View Tabs */}
-      <div className="view-tabs" style={{ marginBottom: 24, display: "flex", gap: 12 }}>
+      <div className="view-tabs" style={{ marginBottom: 24, display: "flex", gap: 12, flexWrap: "wrap" }}>
         <button 
           className={`btn ${activeTab === "grid" ? "btn-primary" : "btn-secondary"}`}
           onClick={() => setActiveTab("grid")}
           style={{ display: "flex", alignItems: "center", gap: 8 }}
         >
           <MdGridView /> Autonomous Grid
+        </button>
+        <button 
+          className={`btn ${activeTab === "warroom" ? "btn-primary" : "btn-secondary"}`}
+          onClick={() => setActiveTab("warroom")}
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <MdBubbleChart /> Holographic War Room
         </button>
         <button 
           className={`btn ${activeTab === "collaboration" ? "btn-primary" : "btn-secondary"}`}
@@ -197,11 +206,20 @@ export default function AutonomousView() {
                 <h3>Agent Profile: {selectedAgent.name}</h3>
               </div>
               <div style={{ display: "flex", gap: 24, padding: "16px 0", flexDirection: window.innerWidth <= 480 ? "column" : "row", alignItems: window.innerWidth <= 480 ? "center" : "flex-start" }}>
-                <AgentAvatar
+                <Hologram3DCanvas
                   agent={selectedAgent}
-                  size={120}
-                  speaking={speakingAgentIds.has(selectedAgent.id)}
-                  listening={listeningAgentIds.has(selectedAgent.id)}
+                  animationState={
+                    speakingAgentIds.has(selectedAgent.id)
+                      ? "speaking"
+                      : listeningAgentIds.has(selectedAgent.id)
+                      ? "thinking"
+                      : selectedAgent.status === "offline"
+                      ? "offline"
+                      : "idle"
+                  }
+                  size={220}
+                  showProjector
+                  lookAtMouse
                 />
                 <div style={{ flex: 1 }}>
                   <table className="data-table" style={{ marginBottom: 16 }}>
@@ -282,6 +300,76 @@ export default function AutonomousView() {
               </tbody>
             </table>
           </div>
+        </>
+      ) : activeTab === "warroom" ? (
+        <>
+          {/* Holographic War Room */}
+          <div className="panel" style={{ marginBottom: 24 }}>
+            <div className="panel-header">
+              <h3>Holographic War Room</h3>
+              <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                Multi-agent swarm visualization — click agents to inspect
+              </span>
+            </div>
+            <HologramSwarm
+              agents={agents || []}
+              selectedAgent={selectedAgent}
+              onSelectAgent={(agent) => setSelectedAgent(selectedAgent?.id === agent.id ? null : agent)}
+              speakingIds={speakingAgentIds}
+              showDataStreams
+              height={520}
+            />
+          </div>
+
+          {/* Selected Agent Detail */}
+          {selectedAgent && (
+            <div className="panel" style={{ marginBottom: 24 }}>
+              <div className="panel-header">
+                <h3>Agent Profile: {selectedAgent.name}</h3>
+              </div>
+              <div style={{ display: "flex", gap: 24, padding: "16px 0", flexDirection: window.innerWidth <= 480 ? "column" : "row", alignItems: window.innerWidth <= 480 ? "center" : "flex-start" }}>
+                <Hologram3DCanvas
+                  agent={selectedAgent}
+                  animationState={speakingAgentIds.has(selectedAgent.id) ? "speaking" : listeningAgentIds.has(selectedAgent.id) ? "thinking" : "idle"}
+                  size={220}
+                  showProjector
+                  lookAtMouse
+                />
+                <div style={{ flex: 1 }}>
+                  <table className="data-table" style={{ marginBottom: 16 }}>
+                    <tbody>
+                      <tr>
+                        <td style={{ color: "var(--text-muted)", width: 120 }}>Status</td>
+                        <td><span className={`badge ${selectedAgent.status}`}><span className="dot" />{selectedAgent.status}</span></td>
+                      </tr>
+                      <tr>
+                        <td style={{ color: "var(--text-muted)" }}>Personality</td>
+                        <td>{selectedAgent.persona?.personality || "Unknown"}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ color: "var(--text-muted)" }}>Voice Style</td>
+                        <td style={{ textTransform: "capitalize" }}>{selectedAgent.persona?.voice_style || "neutral"}</td>
+                      </tr>
+                      <tr>
+                        <td style={{ color: "var(--text-muted)" }}>Description</td>
+                        <td>{selectedAgent.description || "No description"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => {
+                      setArAgent(selectedAgent);
+                      setArMode(true);
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 8 }}
+                  >
+                    <MdViewInAr /> View in AR
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <AutonomousGraph />

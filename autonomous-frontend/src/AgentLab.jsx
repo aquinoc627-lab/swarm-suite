@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { agentsAPI } from "./api";
 import { Hologram3DCanvas } from "./Hologram3D";
 import { useToast } from "./ToastContext";
-import { MdAdd, MdSave, MdRefresh } from "react-icons/md";
+import { MdSave, MdRefresh } from "react-icons/md";
 
 const PERSONA_PRESETS = {
   analytical: {
@@ -38,6 +38,10 @@ const PERSONA_PRESETS = {
   },
 };
 
+// Animation states supported by HologramCharacter and their visual effects:
+// idle=breathing, speaking=bounce+headtilt, thinking=spin+panels, waving=arm wave,
+// pointing=arm extend, processing=sparkles+glitch, offline=glitch+flicker
+const ANIMATION_STATES = ["idle", "speaking", "thinking", "waving", "pointing", "processing", "offline"];
 const VOICE_STYLES = ["neutral", "assertive", "calm", "urgent"];
 const ICONS = ["brain", "shield", "eye", "bolt", "crosshair", "satellite"];
 
@@ -52,6 +56,7 @@ export default function AgentLab() {
     persona: PERSONA_PRESETS.analytical,
   });
 
+  const [previewAnimation, setPreviewAnimation] = useState("idle");
   const [previewAgent, setPreviewAgent] = useState({
     id: "preview",
     name: "New Agent",
@@ -268,11 +273,26 @@ export default function AgentLab() {
           <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: 400 }}>
             <Hologram3DCanvas
               agent={previewAgent}
-              animationState="idle"
+              animationState={previewAnimation}
               size={350}
+              showProjector
+              lookAtMouse
             />
           </div>
-          <div style={{ marginTop: 16, textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
+          {/* Animation state selector */}
+          <div style={{ marginTop: 12, display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+            {ANIMATION_STATES.map((state) => (
+              <button
+                key={state}
+                className={`preset-btn${previewAnimation === state ? " active" : ""}`}
+                onClick={() => setPreviewAnimation(state)}
+                style={{ fontSize: 11, padding: "4px 10px" }}
+              >
+                {state}
+              </button>
+            ))}
+          </div>
+          <div style={{ marginTop: 12, textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
             <p>Personality: {formData.persona.personality}</p>
             <p>Voice: {formData.persona.voice_style}</p>
           </div>
