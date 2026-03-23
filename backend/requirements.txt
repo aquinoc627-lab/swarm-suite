@@ -29,6 +29,7 @@ chromadb>=0.4.22
 aiohttp>=3.9.0
 requests>=2.31.0
 beautifulsoup4>=4.12.0
+docker>=7.0.0
 
 # ── Testing ─────────────────────────────────────────────────────
 pytest>=8.0.0
