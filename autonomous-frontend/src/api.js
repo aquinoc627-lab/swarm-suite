@@ -149,4 +149,9 @@ export const playbooksAPI = {
     api.post(`/api/playbooks/executions/${execId}/step`, { action }),
 };
 
+// ── OSINT ─────────────────────────────────────────────────────────
+export const osintAPI = {
+  sherlock: (username) => api.get(`/api/osint/sherlock/${encodeURIComponent(username)}`),
+};
+
 export default api;
