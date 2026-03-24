@@ -23,6 +23,7 @@ import {
   MdCircle,
   MdMoreHoriz,
   MdGavel,
+  MdPersonSearch,
 } from "react-icons/md";
 
 
@@ -289,6 +290,7 @@ function BottomNav() {
     { to: "/analytics", icon: <MdBarChart />, label: "Analytics" },
     { to: "/lab", icon: <MdBuild />, label: "Agent Lab" },
     { to: "/knowledge", icon: <MdAccountTree />, label: "Intel Graph" },
+    { to: "/osint", icon: <MdPersonSearch />, label: "OSINT" },
   ];
 
   const isActive = (to, exact) =>
@@ -457,6 +459,9 @@ export default function Layout() {
             </NavLink>
             <NavLink to="/knowledge" onClick={() => setSidebarOpen(false)}>
               <MdAccountTree /> <span>Intel Graph</span>
+            </NavLink>
+            <NavLink to="/osint" onClick={() => setSidebarOpen(false)}>
+              <MdPersonSearch /> <span>OSINT</span>
             </NavLink>
 
             <div className="sidebar-section-label">System</div>
