@@ -39,6 +39,52 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
+## Electron Desktop App
+
+The frontend can be run and distributed as a **true native desktop application** using [Electron](https://www.electronjs.org/). This works on Windows 11, Kali Linux, and Kali Linux WSL.
+
+### Prerequisites
+
+Make sure the backend is running locally (see the root `README.md`), then install frontend dependencies:
+
+```bash
+npm install
+```
+
+### Run as a Desktop App (Development)
+
+Starts both the React dev server and Electron simultaneously:
+
+```bash
+npm run electron:dev
+```
+
+A native desktop window will open pointing to `http://localhost:3000`. The app reloads automatically when you make code changes.
+
+### Run Electron against an already-running dev server
+
+If the React dev server is already running on port 3000:
+
+```bash
+npm run electron:start
+```
+
+### Build a Distributable Native Binary
+
+Produces a platform-specific installer/binary inside the `dist/` folder:
+
+```bash
+npm run electron:build
+```
+
+| Platform    | Output                        |
+| ----------- | ----------------------------- |
+| Windows 11  | `dist/Autonomous Setup *.exe` |
+| Linux / WSL | `dist/Autonomous-*.AppImage`  |
+| macOS       | `dist/Autonomous-*.dmg`       |
+
+> **Note:** Cross-compilation (e.g. building a `.exe` from Linux) requires additional tooling. It is recommended to build for the target platform natively.
+
 ## Learn More
 
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
