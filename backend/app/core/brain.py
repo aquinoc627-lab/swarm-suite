@@ -2,8 +2,12 @@ import json
 import logging
 import os
 from typing import List, Optional, Dict, Any
-from google import genai
-from google.genai import types
+try:
+    from google import genai
+    from google.genai import types
+except ImportError:
+    genai = None
+    types = None
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc
 from app.models.agent import Agent
@@ -20,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 # Initialize Gemini client
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY else None
+client = genai.Client(api_key=GEMINI_API_KEY) if GEMINI_API_KEY and genai else None
 
 # ---------------------------------------------------------------------------
 # Coding Tools Definition
@@ -149,7 +153,7 @@ class AgentBrain:
     @staticmethod
     async def think(db: AsyncSession, agent_id: str) -> Optional[Dict[str, Any]]:
         if not client:
-            logger.warning("Gemini API key not set. Agent Brain is offline.")
+            logger.warning("Agent Brain is offline (Gemini SDK not installed or API key not set).")
             return None
 
         context = await AgentBrain.get_agent_context(db, agent_id)
