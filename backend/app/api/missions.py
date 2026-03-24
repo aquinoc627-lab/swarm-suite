@@ -1,5 +1,5 @@
 """
-Swarm Suite — Missions API
+Autonomous — Missions API
 
 Endpoints:
   GET    /api/missions              — list all missions (filterable)
@@ -20,6 +20,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.core.audit import record_audit
 from app.core.database import get_db
@@ -47,15 +48,22 @@ router = APIRouter(prefix="/api/missions", tags=["Missions"])
 async def list_missions(
     status_filter: Optional[MissionStatus] = Query(None, alias="status"),
     priority: Optional[MissionPriority] = Query(None),
+    parent_id: Optional[str] = Query(None),
     db: AsyncSession = Depends(get_db),
     _user: User = Depends(get_current_user),
 ):
-    """List all missions, optionally filtered by status and/or priority."""
-    stmt = select(Mission).order_by(Mission.created_at.desc())
+    """List all missions, optionally filtered by status, priority, and parent_id."""
+    stmt = select(Mission).options(selectinload(Mission.sub_tasks)).order_by(Mission.created_at.desc())
     if status_filter:
         stmt = stmt.where(Mission.status == status_filter.value)
     if priority:
         stmt = stmt.where(Mission.priority == priority.value)
+    if parent_id:
+        stmt = stmt.where(Mission.parent_id == parent_id)
+    else:
+        # By default, only show top-level missions
+        stmt = stmt.where(Mission.parent_id == None)
+        
     result = await db.execute(stmt)
     return result.scalars().all()
 
@@ -74,6 +82,7 @@ async def create_mission(
         status=body.status.value,
         priority=body.priority.value,
         created_by=current_user.id,
+        parent_id=body.parent_id,
     )
     db.add(mission)
     await db.flush()
@@ -85,7 +94,7 @@ async def create_mission(
         action="create",
         entity_type="mission",
         entity_id=mission.id,
-        details={"name": mission.name, "status": mission.status, "priority": mission.priority},
+        details={"name": mission.name, "status": mission.status, "priority": mission.priority, "parent_id": mission.parent_id},
         request=request,
     )
 
@@ -104,7 +113,7 @@ async def get_mission(
     _user: User = Depends(get_current_user),
 ):
     """Get a single mission by ID."""
-    result = await db.execute(select(Mission).where(Mission.id == mission_id))
+    result = await db.execute(select(Mission).options(selectinload(Mission.sub_tasks)).where(Mission.id == mission_id))
     mission = result.scalar_one_or_none()
     if mission is None:
         raise HTTPException(status_code=404, detail="Mission not found")
@@ -120,7 +129,7 @@ async def update_mission(
     current_user: User = Depends(get_current_user),
 ):
     """Update an existing mission."""
-    result = await db.execute(select(Mission).where(Mission.id == mission_id))
+    result = await db.execute(select(Mission).options(selectinload(Mission.sub_tasks)).where(Mission.id == mission_id))
     mission = result.scalar_one_or_none()
     if mission is None:
         raise HTTPException(status_code=404, detail="Mission not found")
@@ -131,6 +140,7 @@ async def update_mission(
         "status": mission.status,
         "priority": mission.priority,
         "description": mission.description,
+        "parent_id": mission.parent_id,
     }
 
     update_data = body.model_dump(exclude_unset=True)
@@ -159,6 +169,7 @@ async def update_mission(
         "status": mission.status,
         "priority": mission.priority,
         "description": mission.description,
+        "parent_id": mission.parent_id,
     }
     await record_audit(
         db,

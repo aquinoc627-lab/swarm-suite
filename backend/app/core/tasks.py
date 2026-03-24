@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.models.agent import Agent
 from app.core.database import async_session
+from app.core.database import async_session as SessionLocal
 from app.core.brain import AgentBrain
 
 logger = logging.getLogger(__name__)

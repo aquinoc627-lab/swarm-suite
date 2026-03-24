@@ -1,0 +1,76 @@
+# Autonomous — Docker Compose Configuration
+# Orchestrates the entire stack: Backend, Frontend, and PostgreSQL
+
+version: '3.8'
+
+services:
+  # Backend Service (FastAPI)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: autonomous-backend
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://autonomous_user:autonomous_password@db:5432/autonomous_db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - AUTH_MODE=jwt
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+    volumes:
+      # NOTE: Mounting the Docker socket grants the backend container full control
+      # over the host Docker daemon (required for Ghost Protocol lab management).
+      # Ensure the backend service is properly hardened in production deployments.
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - autonomous-network
+
+  # Frontend Service (React + Nginx)
+  frontend:
+    build:
+      context: ./autonomous-frontend
+      dockerfile: Dockerfile
+      args:
+        - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+    container_name: autonomous-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - autonomous-network
+
+  # Database Service (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: autonomous-db
+    restart: always
+    environment:
+      - POSTGRES_USER=autonomous_user
+      - POSTGRES_PASSWORD=autonomous_password
+      - POSTGRES_DB=autonomous_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autonomous_user -d autonomous_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - autonomous-network
+
+networks:
+  autonomous-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

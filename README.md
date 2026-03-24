@@ -1,206 +1,115 @@
-# Swarm Suite
+# Autonomous
 
-**Orchestration Command Center** — A full-stack platform for managing agents, missions, and real-time banter with a neon-themed dark-mode dashboard.
+**Autonomous Orchestration Command Center** — A full-stack platform for managing and coordinating intelligent agents, executing complex missions, and fostering real-time collaboration with a neon-themed, responsive dashboard.
 
 ---
 
-## Architecture
+## Overview
 
-Swarm Suite is composed of two main services:
+The Autonomous is an advanced, AI-powered platform designed to empower autonomous agents with capabilities ranging from real-world tool use and collaborative intelligence to long-term memory and secure code execution. It features a dynamic 3D Agent Lab for creating custom agent personas and a voice-controlled interface for seamless interaction.
 
-| Component | Technology | Port |
-|-----------|-----------|------|
-| Backend API | FastAPI + SQLAlchemy (async) | 8000 |
-| Frontend SPA | React 18 + Recharts | 3000 |
+## Key Features
 
-The backend exposes a REST API with JWT authentication, WebSocket real-time events, and an analytics engine. The frontend consumes the API via Axios with automatic token refresh and displays data through a neon-themed dashboard with five primary views.
+### Core Functionality
+*   **Neon-Themed Dashboard**: A visually stunning, responsive UI with dark mode and glowing accents, optimized for both desktop and mobile.
+*   **Agent & Mission Management**: Full CRUD operations for agents and missions, including hierarchical tasking and agent-to-mission assignments.
+*   **Real-time Banter**: A live communication feed for users and agents, with filtering and persona-driven speech synthesis.
+*   **Analytics & Monitoring**: Comprehensive dashboards for tracking Autonomous activity, system health, and agent performance.
+
+### Advanced AI & Autonomy
+*   **Agent Brain (Gemini-Powered)**: Autonomous reasoning, decision-making, and persona-driven actions for all agents.
+*   **Tool Arsenal & Execution Engine**: A curated catalog of 44+ cybersecurity tools (Nmap, Metasploit, etc.) with OS-aware command generation and security confirmation gates. Agents can be assigned these tools to execute complex missions.
+*   **Voice Interaction**: Control the dashboard with voice commands and hear agents respond in their unique, persona-matched voices.
+*   **Autonomous Intelligence**: Agents collaborate on complex missions, delegate sub-tasks, and communicate with each other to achieve collective goals.
+*   **Memory Palace (Long-Term Vector Memory)**: Agents possess persistent, semantic recall of past experiences, enabling cross-mission learning and smarter decision-making.
+*   **Autonomous Coding (DevOps Agent)**: Agents can execute code in a secure sandbox, interact with GitHub repositories, and propose code changes.
+
+### Visual & Interactive
+*   **3D Agent Lab**: A dedicated interface for creating and customizing agents with real-time 3D animated human-like holograms, dynamic animations, and unique visual attributes.
+
+### Security & Deployment
+*   **Production Hardening**: Dockerized deployment, security middleware (rate limiting, headers), and automated security scanning for a robust and secure platform.
+*   **Authentication**: JWT-based authentication with role-based access control, easily swappable to OAuth providers like Auth0 or Okta.
 
 ---
 
 ## Quick Start
 
-### Prerequisites
+For detailed installation and deployment instructions, please refer to the dedicated guides:
 
-- Python 3.11+
-- Node.js 18+
-- npm or pnpm
+*   **[Windows 11 Installation & Deployment Guide](docs/windows_installation_guide.md)**
+*   **[General Deployment Guide](DEPLOYMENT.md)**
 
-### Backend
+### Docker Compose (Recommended)
 
-```bash
-cd backend
-pip install -r requirements.txt   # or: pip install fastapi uvicorn sqlalchemy[asyncio] aiosqlite pyjwt bcrypt python-multipart
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-The backend will automatically create the SQLite database and seed it with sample data on first run.
-
-### Frontend
+Ensure you have Docker Desktop installed and running. Then, from the root of the repository:
 
 ```bash
-cd swarm-frontend
-npm install
-npm start
+docker-compose up -d --build
 ```
 
-The frontend runs on `http://localhost:3000` and connects to the backend at `http://localhost:8000` by default. Override with the `REACT_APP_API_URL` environment variable.
+This will build and start the entire Autonomous stack (PostgreSQL, FastAPI backend, and React frontend via Nginx). Access the frontend at `http://localhost:3000`.
 
----
+### Local Development (Without Docker)
 
-## Demo Credentials
+1.  **Backend (FastAPI)**: Navigate to the `backend/` directory, install `requirements.txt`, set environment variables (including `GEMINI_API_KEY` and `GITHUB_TOKEN`), run migrations (`alembic upgrade head`), seed data (`python app/seed.py`), and start with `uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload`.
+2.  **Frontend (React)**: Navigate to the `autonomous-frontend/` directory, install dependencies (`npm install`), set `REACT_APP_API_URL=http://localhost:8000` in a `.env` file, and start with `npm start`.
+
+### Demo Credentials
 
 | Username | Password | Role |
 |----------|----------|------|
-| admin | Admin123! | admin |
-| operator1 | Operator1! | operator |
+| `admin` | `Admin123!` | `admin` |
+| `operator1` | `Operator1!` | `operator` |
 
 ---
 
-## Features
+## Documentation
 
-### Backend
-- **JWT Authentication** with access/refresh token rotation and bcrypt password hashing
-- **Role-Based Access Control** (admin, operator) enforced at the API level
-- **Full CRUD** for Missions, Agents, and Banter entities
-- **Many-to-Many** agent-mission assignments with a junction table
-- **WebSocket** real-time broadcast of all entity changes
-- **Analytics Engine** with overview stats, 7-day activity trends, and system health
-- **Audit Logging** for all mutations (create, update, delete)
-- **CORS** configured for local development with environment-variable overrides
-- **Database-Agnostic** — SQLite for development, PostgreSQL for production (swap via `DATABASE_URL`)
-
-### Frontend
-- **Swarm View** — Real-time overview with agent/mission counts and status tables
-- **Mission Timeline** — Full CRUD with status filtering, priority badges, and agent assignment modals
-- **Agent Control** — Card-based agent management with status filtering and mission detail views
-- **Banter Panel** — Real-time chat feed with mission/agent filtering and compose functionality
-- **Analytics Dashboard** — 7-day activity area chart, agent status donut, mission status/priority charts, banter type distribution, and system health gauges
-- **Neon Theme** — Dark mode with cyan/green/purple glowing accents and smooth animations
-
----
-
-## API Endpoints
-
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/auth/login` | Login with username/password |
-| POST | `/api/auth/refresh` | Refresh access token |
-| POST | `/api/auth/logout` | Revoke refresh token |
-| GET | `/api/auth/me` | Get current user profile |
-
-### Agents
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/agents` | List agents (filterable by status) |
-| POST | `/api/agents` | Create agent |
-| GET | `/api/agents/{id}` | Get agent by ID |
-| PATCH | `/api/agents/{id}` | Update agent |
-| DELETE | `/api/agents/{id}` | Delete agent (admin only) |
-| GET | `/api/agents/{id}/missions` | List missions for agent |
-
-### Missions
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/missions` | List missions (filterable by status) |
-| POST | `/api/missions` | Create mission |
-| GET | `/api/missions/{id}` | Get mission by ID |
-| PATCH | `/api/missions/{id}` | Update mission |
-| DELETE | `/api/missions/{id}` | Delete mission (admin only) |
-| GET | `/api/missions/{id}/agents` | List agents for mission |
-| POST | `/api/missions/{id}/assign` | Assign agent to mission |
-| DELETE | `/api/missions/{id}/assign/{agent_id}` | Revoke agent from mission |
-
-### Banter
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/banter` | List banter (filterable by mission_id, agent_id) |
-| POST | `/api/banter` | Create banter message |
-| DELETE | `/api/banter/{id}` | Delete banter (admin only) |
-
-### Analytics
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/analytics/overview` | Agent/mission/banter counts and status breakdowns |
-| GET | `/api/analytics/activity` | 7-day activity trends |
-| GET | `/api/analytics/health` | System health metrics |
-
-### WebSocket
-| Endpoint | Description |
-|----------|-------------|
-| `ws://localhost:8000/ws?token=JWT` | Real-time event stream |
-
----
-
-## Environment Variables
-
-### Backend
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DATABASE_URL` | `sqlite+aiosqlite:///data/swarm_suite.db` | Database connection string |
-| `SECRET_KEY` | (dev default) | JWT signing key — **must override in production** |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | `30` | Access token TTL |
-| `REFRESH_TOKEN_EXPIRE_DAYS` | `7` | Refresh token TTL |
-| `CORS_ORIGINS` | `http://localhost:3000` | Comma-separated allowed origins |
-
-### Frontend
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `REACT_APP_API_URL` | `http://localhost:8000` | Backend API base URL |
-
----
-
-## Deployment
-
-### Render / Railway (Backend)
-1. Set `DATABASE_URL` to a PostgreSQL connection string
-2. Set `SECRET_KEY` to a strong random value (`openssl rand -hex 32`)
-3. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
-
-### Vercel (Frontend)
-1. Set `REACT_APP_API_URL` to the deployed backend URL
-2. Build command: `npm run build`
-3. Output directory: `build`
-
-### Monitoring
-- **Sentry**: Add `sentry-sdk[fastapi]` to backend and `@sentry/react` to frontend
-- **Datadog/NewRelic**: Standard APM agent integration with FastAPI middleware
+*   **[Comprehensive User Manual](docs/user_manual.md)**
+*   **[Database Schema Documentation](docs/DatabaseSchema.md)**
+*   **[Entity Relationship Diagram (ERD)](docs/erd.png)**
 
 ---
 
 ## Project Structure
 
 ```
-swarm-suite/
-├── backend/
-│   ├── app/
-│   │   ├── api/          # Route handlers (auth, agents, missions, banter, analytics, ws)
-│   │   ├── core/         # Config, database, security, WebSocket manager
-│   │   ├── models/       # SQLAlchemy ORM models
-│   │   ├── schemas/      # Pydantic validation schemas
-│   │   ├── seed.py       # Sample data seeder
-│   │   └── main.py       # FastAPI application entry point
-│   ├── alembic/          # Database migrations
-│   └── data/             # SQLite database (auto-created)
-├── swarm-frontend/
-│   ├── src/
-│   │   ├── App.js        # Router and providers
-│   │   ├── AuthContext.js # Authentication state management
-│   │   ├── api.js        # Axios API client with interceptors
-│   │   ├── useWebSocket.js # WebSocket hook
-│   │   ├── Layout.jsx    # Dashboard layout with sidebar
-│   │   ├── Login.jsx     # Login page
-│   │   ├── SwarmView.jsx # Swarm overview dashboard
-│   │   ├── Missions.jsx  # Mission timeline with CRUD
-│   │   ├── Agents.jsx    # Agent control with CRUD
-│   │   ├── Banter.jsx    # Real-time banter panel
-│   │   ├── Analytics.jsx # Analytics dashboard with charts
-│   │   └── neonTheme.css # Neon dark theme styles
+Autonomous/
+├── backend/                  # FastAPI backend services
+│   ├── app/                  # Core application logic
+│   │   ├── api/              # REST API endpoints
+│   │   ├── core/             # Config, DB, security, AI Brain, Tools, Memory
+│   │   ├── models/           # SQLAlchemy ORM models
+│   │   ├── schemas/          # Pydantic validation schemas
+│   │   ├── seed.py           # Sample data seeder
+│   │   └── main.py           # FastAPI application entry point
+│   ├── alembic/              # Database migrations
+│   ├── data/                 # SQLite database (dev) and ChromaDB (vector store)
+│   └── tests/                # Pytest unit and integration tests
+├── autonomous-frontend/              # React frontend application
+│   ├── public/               # Static assets
+│   ├── src/                  # React components, hooks, contexts
+│   │   ├── components/       # Reusable UI components
+│   │   ├── pages/            # Main dashboard pages
+│   │   ├── AgentLab.jsx      # 3D Agent Creator UI
+│   │   ├── Hologram3D.jsx    # Three.js 3D Agent Hologram component
+│   │   ├── MemorySearch.jsx  # Memory Palace search UI
+│   │   ├── ToolArsenal.jsx   # Cybersecurity Tool Catalog UI
+│   │   ├── VoiceControl.jsx  # Voice command widget
+│   │   └── neonTheme.css     # Global neon dark theme styles
 │   └── package.json
-├── docs/
-│   ├── DatabaseSchema.md # Schema documentation
-│   └── erd.png           # Entity relationship diagram
-└── README.md
+├── docs/                     # Project documentation
+│   ├── DatabaseSchema.md
+│   ├── erd.png
+│   ├── user_manual.md
+│   └── windows_installation_guide.md
+├── logos/                    # Brand logo assets
+├── scripts/                  # Utility scripts (e.g., security_audit.sh)
+├── .env.example              # Environment variable template
+├── docker-compose.yml        # Docker Compose configuration
+├── DEPLOYMENT.md             # General deployment guide
+└── README.md                 # This file
 ```
 
 ---

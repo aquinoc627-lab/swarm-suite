@@ -1,5 +1,5 @@
 """
-Swarm Suite — Audit Logging Utility
+Autonomous — Audit Logging Utility
 
 Provides a reusable helper for recording audit log entries from any API
 handler.  Every mutation (create, update, delete) and authentication event

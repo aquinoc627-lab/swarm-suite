@@ -1,5 +1,5 @@
 """
-Swarm Suite — WebSocket Connection Manager
+Autonomous — WebSocket Connection Manager
 
 Manages active WebSocket connections and provides broadcasting capabilities
 for real-time updates across the platform.
