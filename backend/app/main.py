@@ -20,6 +20,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api import agents, analytics, auth, banter, missions, osint, tools, ws, playbooks
+from app.api import agents, analytics, auth, banter, ghost, missions, tools, ws, playbooks
 from app.core.config import (
     APP_DESCRIPTION,
     APP_TITLE,
@@ -127,6 +128,7 @@ app.include_router(tools.router)
 app.include_router(ws.router)
 app.include_router(playbooks.router)
 app.include_router(osint.router)
+app.include_router(ghost.router)
 
 
 # ---------------------------------------------------------------------------
