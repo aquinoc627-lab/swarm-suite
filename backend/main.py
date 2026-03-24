@@ -1,3 +1,7 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
 import subprocess
 import asyncio
 import urllib.request
@@ -28,6 +32,13 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Enable CORS so the JS frontend can make requests to this API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins (update for production)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost", "http://127.0.0.1", "http://localhost:8000"],
@@ -38,12 +49,15 @@ app.add_middleware(
 
 @app.get("/api/status")
 async def get_status():
+    """Health check endpoint to verify the backend is running."""
     return {
         "status": "online",
         "message": "Autonomous API is running smoothly.",
         "active_modules": ["core"]
     }
 
+if __name__ == "__main__":
+    # Run the server on port 8000
 @app.get("/api/osint/sherlock/{username}")
 async def run_sherlock(username: str):
     if not re.match(r"^[a-zA-Z0-9_-]+$", username):

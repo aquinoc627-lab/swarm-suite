@@ -64,6 +64,7 @@ async function checkBackendStatus() {
         logToConsole("Pinging API backend...");
         const response = await fetch(`${API_BASE_URL}/status`);
         const data = await response.json();
+        
         if (data.status === 'online') {
             statusBadge.textContent = 'API Online';
             statusBadge.className = 'status-badge online';
@@ -79,6 +80,14 @@ async function checkBackendStatus() {
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
         navLinks.forEach(l => l.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+        
+        const moduleName = e.currentTarget.getAttribute('data-target');
+        document.querySelector('h1').textContent = e.currentTarget.textContent;
+        logToConsole(`Switching to module: ${moduleName.toUpperCase()}...`);
+    });
+});
+
         e.target.classList.add('active');
 
         const moduleName = e.target.getAttribute('data-target');
