@@ -95,40 +95,44 @@ async def activity(
     now = datetime.now(timezone.utc)
     seven_days_ago = now - timedelta(days=7)
 
+    seven_days_ago_start = (now - timedelta(days=6)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+
+    missions_res = await db.execute(
+        select(func.date(Mission.created_at), func.count())
+        .where(Mission.created_at >= seven_days_ago_start)
+        .group_by(func.date(Mission.created_at))
+    )
+    missions_counts = {str(row[0]): row[1] for row in missions_res.all()}
+
+    banter_res = await db.execute(
+        select(func.date(Banter.created_at), func.count())
+        .where(Banter.created_at >= seven_days_ago_start)
+        .group_by(func.date(Banter.created_at))
+    )
+    banter_counts = {str(row[0]): row[1] for row in banter_res.all()}
+
+    assignments_res = await db.execute(
+        select(func.date(AgentMission.assigned_at), func.count())
+        .where(AgentMission.assigned_at >= seven_days_ago_start)
+        .group_by(func.date(AgentMission.assigned_at))
+    )
+    assignments_counts = {str(row[0]): row[1] for row in assignments_res.all()}
+
     # Build daily activity data
     days = []
     for i in range(7):
         day_start = (now - timedelta(days=6 - i)).replace(
             hour=0, minute=0, second=0, microsecond=0
         )
-        day_end = day_start + timedelta(days=1)
-
-        missions_created = (await db.execute(
-            select(func.count()).select_from(Mission).where(
-                Mission.created_at >= day_start,
-                Mission.created_at < day_end,
-            )
-        )).scalar()
-
-        banter_created = (await db.execute(
-            select(func.count()).select_from(Banter).where(
-                Banter.created_at >= day_start,
-                Banter.created_at < day_end,
-            )
-        )).scalar()
-
-        assignments_created = (await db.execute(
-            select(func.count()).select_from(AgentMission).where(
-                AgentMission.assigned_at >= day_start,
-                AgentMission.assigned_at < day_end,
-            )
-        )).scalar()
+        date_str = day_start.strftime("%Y-%m-%d")
 
         days.append({
-            "date": day_start.strftime("%Y-%m-%d"),
-            "missions": missions_created,
-            "banter": banter_created,
-            "assignments": assignments_created,
+            "date": date_str,
+            "missions": missions_counts.get(date_str, 0),
+            "banter": banter_counts.get(date_str, 0),
+            "assignments": assignments_counts.get(date_str, 0),
         })
 
     # Banter by message type
