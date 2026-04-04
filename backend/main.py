@@ -1,7 +1,4 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-
+import os
 import subprocess
 import asyncio
 import urllib.request
@@ -32,19 +29,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
 # Enable CORS so the JS frontend can make requests to this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins (update for production)
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost", "http://127.0.0.1", "http://localhost:8000"],
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -59,10 +47,6 @@ async def get_status():
         "active_modules": ["core"]
     }
 
-@app.get("/api/osint/sherlock/{username}")
-async def run_sherlock(username: str):
-if __name__ == "__main__":
-    # Run the server on port 8000
 @app.get("/api/osint/sherlock/{username}")
 async def run_sherlock(username: str):
     if not re.match(r"^[a-zA-Z0-9_-]+$", username):
@@ -98,10 +82,6 @@ async def check_breach(email: str, api_key: str = ""):
     url = f"https://haveibeenpwned.com/api/v3/breachedaccount/{urllib.parse.quote(email)}?truncateResponse=false"
     headers = {"hibp-api-key": api_key, "user-agent": "Autonomous-Cyber-Suite"}
     req = urllib.request.Request(url, headers=headers)
-    try:
-        with urllib.request.urlopen(req) as response:
-            data = json.loads(response.read().decode())
-            return {"status": "success", "target": email, "found": len(data), "breaches": data}
 
     def _do_hibp_request():
         with urllib.request.urlopen(req) as response:
@@ -174,10 +154,6 @@ async def map_infrastructure(target: str, api_key: str = ""):
         
         api = shodan.Shodan(api_key)
         try:
-            host_data = api.host(ip_address)
-
-        api = shodan.Shodan(api_key)
-        try:
             host_data = await asyncio.to_thread(api.host, ip_address)
             services = []
             for item in host_data.get('data', []):
@@ -208,16 +184,6 @@ async def map_infrastructure(target: str, api_key: str = ""):
 async def web_archive_discovery(domain: str, limit: int = 100):
     clean_domain = domain.replace("http://", "").replace("https://", "").split("/")[0]
     url = f"http://web.archive.org/cdx/search/cdx?url=*.{clean_domain}/*&output=json&fl=original,timestamp,mimetype,statuscode&collapse=urlkey&limit={limit}"
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Autonomous-Cyber-Suite"})
-        with urllib.request.urlopen(req) as response:
-            data = json.loads(response.read().decode())
-            if not data or len(data) <= 1: 
-                return {"status": "success", "target": clean_domain, "found": 0, "urls": []}
-            results = []
-            for row in data[1:]:
-                results.append({"url": row[0], "timestamp": row[1], "mimetype": row[2], "status": row[3]})
-            return {"status": "success", "target": clean_domain, "found": len(results), "urls": results}
 
     def _do_archive_request():
         req = urllib.request.Request(url, headers={"User-Agent": "Autonomous-Cyber-Suite"})
@@ -251,7 +217,6 @@ async def validate_target(target_url: str):
         return {"status": "error", "message": "Only http and https URLs are supported."}
 
     # Resolve the hostname and block requests to private/loopback addresses
-    import ipaddress
     try:
         resolved_ip = socket.gethostbyname(hostname)
         ip_obj = ipaddress.ip_address(resolved_ip)
@@ -277,13 +242,6 @@ async def validate_target(target_url: str):
     }
     
     try:
-        resp = requests.get(safe_url, timeout=5, verify=False)
-        lower_headers = {k.lower(): v for k, v in resp.headers.items()}
-        
-        results["server_info"] = resp.headers.get("Server", "Unknown")
-        
-
-    try:
         resp = await asyncio.to_thread(requests.get, safe_url, timeout=5, verify=False)
         lower_headers = {k.lower(): v for k, v in resp.headers.items()}
 
@@ -296,20 +254,15 @@ async def validate_target(target_url: str):
             "content-security-policy": "Protects against XSS and data injection",
             "x-xss-protection": "Deprecated — may introduce vulnerabilities; recommend removing or setting to '0'"
         }
-        
 
         for header, desc in security_headers.items():
-            if header not in lower_headers:
-                results["missing_headers"].append({"header": header, "risk": desc})
-            else:
+            if header in lower_headers:
                 results["present_headers"][header] = lower_headers[header]
+            else:
+                results["missing_headers"].append({"header": header, "risk": desc})
 
         files_to_check = ["/robots.txt", "/sitemap.xml", "/.git/HEAD", "/.env", "/.DS_Store"]
         
-        for f in files_to_check:
-            try:
-                file_resp = requests.get(base_url + f, timeout=3, verify=False)
-
         for f in files_to_check:
             try:
                 file_resp = await asyncio.to_thread(requests.get, base_url + f, timeout=3, verify=False)
@@ -324,9 +277,6 @@ async def validate_target(target_url: str):
             except Exception:
                 continue
                 
-        return {"status": "success", "data": results}
-        
-
         return {"status": "success", "data": results}
 
     except requests.exceptions.RequestException as e:
