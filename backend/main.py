@@ -1,7 +1,4 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-
+import os
 import subprocess
 import asyncio
 import urllib.request
@@ -35,6 +32,10 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+# Enable CORS so the JS frontend can make requests to this API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -84,6 +85,7 @@ async def check_breach(email: str, api_key: str = ""):
     url = f"https://haveibeenpwned.com/api/v3/breachedaccount/{urllib.parse.quote(email)}?truncateResponse=false"
     headers = {"hibp-api-key": api_key, "user-agent": "Autonomous-Cyber-Suite"}
     req = urllib.request.Request(url, headers=headers)
+
     def _do_hibp_request():
         with urllib.request.urlopen(req) as response:
             return json.loads(response.read().decode())
@@ -185,6 +187,7 @@ async def map_infrastructure(target: str, api_key: str = ""):
 async def web_archive_discovery(domain: str, limit: int = 100):
     clean_domain = domain.replace("http://", "").replace("https://", "").split("/")[0]
     url = f"http://web.archive.org/cdx/search/cdx?url=*.{clean_domain}/*&output=json&fl=original,timestamp,mimetype,statuscode&collapse=urlkey&limit={limit}"
+
     def _do_archive_request():
         req = urllib.request.Request(url, headers={"User-Agent": "Autonomous-Cyber-Suite"})
         with urllib.request.urlopen(req) as response:
@@ -217,7 +220,6 @@ async def validate_target(target_url: str):
         return {"status": "error", "message": "Only http and https URLs are supported."}
 
     # Resolve the hostname and block requests to private/loopback addresses
-    import ipaddress
     try:
         resolved_ip = socket.gethostbyname(hostname)
         ip_obj = ipaddress.ip_address(resolved_ip)
@@ -255,13 +257,12 @@ async def validate_target(target_url: str):
             "content-security-policy": "Protects against XSS and data injection",
             "x-xss-protection": "Deprecated — may introduce vulnerabilities; recommend removing or setting to '0'"
         }
-        
 
         for header, desc in security_headers.items():
-            if header not in lower_headers:
-                results["missing_headers"].append({"header": header, "risk": desc})
-            else:
+            if header in lower_headers:
                 results["present_headers"][header] = lower_headers[header]
+            else:
+                results["missing_headers"].append({"header": header, "risk": desc})
 
         files_to_check = ["/robots.txt", "/sitemap.xml", "/.git/HEAD", "/.env", "/.DS_Store"]
         
