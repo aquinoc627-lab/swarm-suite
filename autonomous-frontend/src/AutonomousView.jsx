@@ -1,3 +1,5 @@
+import GenerativeDashboard from "./GenerativeDashboard";
+import { MdOutlineArchitecture } from "react-icons/md";
 import React, { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { analyticsAPI, agentsAPI, missionsAPI, banterAPI } from "./api";
@@ -156,6 +158,13 @@ export default function AutonomousView() {
           style={{ display: "flex", alignItems: "center", gap: 8 }}
         >
           <MdHub /> Collaboration Graph
+        </button>
+        <button 
+          className={`btn ${activeTab === "generative" ? "btn-primary" : "btn-secondary"}`}
+          onClick={() => setActiveTab("generative")}
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <MdOutlineArchitecture /> Adaptive Ops
         </button>
       </div>
 
@@ -371,8 +380,10 @@ export default function AutonomousView() {
             </div>
           )}
         </>
-      ) : (
+      ) : activeTab === "collaboration" ? (
         <AutonomousGraph />
+      ) : (
+        <GenerativeDashboard />
       )}
 
       {/* AR Mode */}
