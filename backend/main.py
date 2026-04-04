@@ -29,12 +29,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
 # Enable CORS so the JS frontend can make requests to this API
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=["http://localhost", "http://127.0.0.1", "http://localhost:8000", "*"],
     allow_origins=os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","),
     allow_credentials=True,
     allow_methods=["*"],
@@ -265,6 +263,7 @@ async def validate_target(target_url: str):
                 results["missing_headers"].append({"header": header, "risk": desc})
 
         files_to_check = ["/robots.txt", "/sitemap.xml", "/.git/HEAD", "/.env", "/.DS_Store"]
+
         
         for f in files_to_check:
             try:
