@@ -1,28 +1,23 @@
-"""
-Autonomous — ORM Models Package
-
-Re-exports every model so that ``from app.models import *`` gives access to
-the full schema and the declarative Base.
-"""
-
-from app.models.base import Base  # noqa: F401
-from app.models.user import User  # noqa: F401
-from app.models.agent import Agent  # noqa: F401
-from app.models.mission import Mission  # noqa: F401
-from app.models.agent_mission import AgentMission  # noqa: F401
-from app.models.banter import Banter  # noqa: F401
-from app.models.refresh_token import RefreshToken  # noqa: F401
-from app.models.audit_log import AuditLog  # noqa: F401
-from app.models.payment_transaction import PaymentTransaction  # noqa: F401
+from app.models.agent import Agent
+from app.models.agent_mission import AgentMission
+from app.models.audit_log import AuditLog
+from app.models.banter import Banter
+from app.models.base import Base
+from app.models.mission import Mission
+from app.models.refresh_token import RefreshToken
+from app.models.user import User
+from app.models.payment_transaction import PaymentTransaction
+from app.models.api_key import ApiKey
 
 __all__ = [
-    "Base",
-    "User",
     "Agent",
-    "Mission",
     "AgentMission",
-    "Banter",
-    "RefreshToken",
     "AuditLog",
+    "Banter",
+    "Base",
+    "Mission",
+    "RefreshToken",
+    "User",
     "PaymentTransaction",
+    "ApiKey",
 ]

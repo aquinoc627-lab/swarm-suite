@@ -21,7 +21,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.api import agents, analytics, auth, banter, labs, missions, tools, ws, playbooks
 from app.api import agents, analytics, auth, banter, missions, osint, tools, ws, playbooks
-from app.api import agents, analytics, auth, banter, ghost, missions, tools, ws, playbooks, labs, osint, billing
+from app.api import agents, analytics, auth, banter, ghost, missions, tools, ws, playbooks, labs, osint, billing, api_keys, system_override
 from app.core.config import (
     APP_DESCRIPTION,
     APP_TITLE,
@@ -132,6 +132,8 @@ app.include_router(labs.router)
 app.include_router(osint.router)
 app.include_router(ghost.router)
 app.include_router(billing.router, prefix="/api/billing", tags=["Billing"])
+app.include_router(api_keys.router, prefix="/api/keys", tags=["API Keys"])
+app.include_router(system_override.router, prefix="/api/system", tags=["System Override"])
 
 
 # ---------------------------------------------------------------------------

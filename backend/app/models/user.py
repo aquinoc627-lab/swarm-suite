@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from app.models.banter import Banter
     from app.models.refresh_token import RefreshToken
     from app.models.audit_log import AuditLog
+    from app.models.api_key import ApiKey
 
 
 class User(Base, UUIDPrimaryKey, TimestampMixin):
@@ -43,6 +44,9 @@ class User(Base, UUIDPrimaryKey, TimestampMixin):
     )
     audit_logs: Mapped[List["AuditLog"]] = relationship(
         back_populates="user", lazy="selectin"
+    )
+    api_keys: Mapped[List["ApiKey"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", lazy="selectin"
     )
 
     # ------------------------------------------------------------------

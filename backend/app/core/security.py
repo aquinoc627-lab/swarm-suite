@@ -26,7 +26,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import jwt
-from fastapi import Depends, HTTPException, WebSocket, status
+from fastapi import Depends, HTTPException, WebSocket, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from passlib.hash import bcrypt
 from sqlalchemy import select
@@ -135,15 +135,48 @@ def decode_access_token(token: str) -> dict:
 # ======================================================================
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme),
+    request: Request,
     db: AsyncSession = Depends(get_db),
 ):
     """
     Dependency that extracts and validates the current user from the
-    Authorization header.  Returns the User ORM object.
-
-    Automatically delegates to OAuth validation when AUTH_MODE=oauth.
+    Authorization header OR the X-API-Key header.
+    Returns the User ORM object.
     """
+    # 1. Check for API Key first (Headless CI/CD Access)
+    api_key_header = request.headers.get("X-API-Key")
+    if api_key_header:
+        import hashlib
+        from app.models.api_key import ApiKey
+        key_hash = hashlib.sha256(api_key_header.encode()).hexdigest()
+        
+        result = await db.execute(select(ApiKey).where(ApiKey.key_hash == key_hash, ApiKey.is_active == True))
+        api_key_obj = result.scalar_one_or_none()
+        
+        if not api_key_obj:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or revoked API Key",
+            )
+            
+        from app.models.user import User
+        user_res = await db.execute(select(User).where(User.id == api_key_obj.user_id, User.is_active == True))
+        user = user_res.scalar_one_or_none()
+        if not user:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Inactive user")
+        return user
+
+    # 2. Fallback to Bearer Token
+    auth_header = request.headers.get("Authorization")
+    if not auth_header or not auth_header.startswith("Bearer "):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    token = auth_header.split(" ")[1]
+
     if AUTH_MODE == "oauth":
         from app.core.oauth import get_oauth_user
         return await get_oauth_user(token=token, db=db)

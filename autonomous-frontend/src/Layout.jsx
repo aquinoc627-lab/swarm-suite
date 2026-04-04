@@ -1,3 +1,5 @@
+import { MdVpnKey } from "react-icons/md";
+import KillSwitch from "./KillSwitch";
 import { MdPayment } from "react-icons/md";
 import { useNexus } from "./NexusContext";
 import GlobalOmnibar from "./GlobalOmnibar";
@@ -485,6 +487,9 @@ export default function Layout() {
             <NavLink to="/billing" onClick={() => setSidebarOpen(false)}>
               <MdPayment /> <span>Billing & Upgrade</span>
             </NavLink>
+            <NavLink to="/apikeys" onClick={() => setSidebarOpen(false)}>
+              <MdVpnKey /> <span>API Integrations</span>
+            </NavLink>
 
             <div style={{ flex: 1 }} />
 
@@ -512,6 +517,9 @@ export default function Layout() {
       <main className={`main-content ${isMobile ? "main-content-mobile" : ""}`}>
         {/* System Status Bar */}
         {!zenithMode && <SystemStatusBar user={user} />}
+        
+        {/* The Kill Switch (Nexus Prime / Admin only) */}
+        {!zenithMode && (user?.tier === "nexus_prime" || user?.role === "admin") && <KillSwitch />}
 
         {/* Authorization Disclaimer Banner */}
         {!zenithMode && <AuthBanner />}
