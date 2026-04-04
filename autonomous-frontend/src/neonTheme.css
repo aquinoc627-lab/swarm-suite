@@ -3038,3 +3038,25 @@ body {
     font-size: 16px;
   }
 }
+
+/* ================================================================
+   ZENITH HUD MODE (THE NEXUS ARCHITECTURE)
+   ================================================================ */
+.app-layout.zenith-mode-active {
+  display: block;
+}
+
+.app-layout.zenith-mode-active .main-content {
+  margin-left: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow: hidden;
+  background: radial-gradient(circle at center, #0a0d14 0%, #000 100%);
+  border: none;
+}
+
+.app-layout.zenith-mode-active .main-content > * {
+  /* Only apply Zenith styles if we want the children to go edge-to-edge */
+  height: 100%;
+}

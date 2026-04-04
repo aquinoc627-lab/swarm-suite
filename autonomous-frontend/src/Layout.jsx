@@ -1,3 +1,5 @@
+import { useNexus } from "./NexusContext";
+import GlobalOmnibar from "./GlobalOmnibar";
 import React, { useState, useEffect, useCallback } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
@@ -346,6 +348,7 @@ function BottomNav() {
    ================================================================ */
 export default function Layout() {
   const { user, logout, isAdmin } = useAuth();
+  const { zenithMode } = useNexus();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 480);
@@ -395,9 +398,11 @@ export default function Layout() {
   };
 
   return (
-    <div className={`app-layout ${isMobile ? "mobile-layout" : ""}`}>
-      {/* Tablet menu button */}
-      {isTablet && (
+    <div className={`app-layout ${isMobile ? "mobile-layout" : ""} ${zenithMode ? "zenith-mode-active" : ""}`}>
+      <GlobalOmnibar />
+      
+      {/* Tablet menu button - Hidden in Zenith Mode */}
+      {isTablet && !zenithMode && (
         <button
           className="mobile-menu-btn"
           onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -408,12 +413,12 @@ export default function Layout() {
       )}
 
       {/* Sidebar overlay for tablet */}
-      {isTablet && sidebarOpen && (
+      {isTablet && sidebarOpen && !zenithMode && (
         <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Desktop/Tablet Sidebar — hidden on mobile */}
-      {!isMobile && (
+      {/* Desktop/Tablet Sidebar — hidden on mobile AND hidden in Zenith Mode */}
+      {!isMobile && !zenithMode && (
         <aside className={`sidebar ${sidebarOpen ? "mobile-open" : ""}`}>
           <div className="sidebar-logo">
             <img
@@ -495,23 +500,23 @@ export default function Layout() {
 
       <main className={`main-content ${isMobile ? "main-content-mobile" : ""}`}>
         {/* System Status Bar */}
-        <SystemStatusBar user={user} />
+        {!zenithMode && <SystemStatusBar user={user} />}
 
         {/* Authorization Disclaimer Banner */}
-        <AuthBanner />
+        {!zenithMode && <AuthBanner />}
 
         {/* Utility Controls */}
         <div style={{ position: "relative" }}>
-          <VoiceControl />
+          {!zenithMode && <VoiceControl />}
           <NotificationCenter />
-          <MemorySearch />
+          {!zenithMode && <MemorySearch />}
         </div>
 
         <Outlet />
       </main>
 
       {/* Mobile Bottom Nav */}
-      {isMobile && <BottomNav />}
+      {isMobile && !zenithMode && <BottomNav />}
     </div>
   );
 }

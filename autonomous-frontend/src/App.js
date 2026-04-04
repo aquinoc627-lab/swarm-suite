@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./AuthContext";
 import { ToastProvider } from "./ToastContext";
+import { NexusProvider } from "./NexusContext";
 import Layout from "./Layout";
 import Login from "./Login";
 import AutonomousView from "./AutonomousView";
@@ -86,7 +87,9 @@ export default function App() {
       <BrowserRouter>
         <ToastProvider>
           <AuthProvider>
-            <AppRoutes />
+            <NexusProvider>
+              <AppRoutes />
+            </NexusProvider>
           </AuthProvider>
         </ToastProvider>
       </BrowserRouter>
