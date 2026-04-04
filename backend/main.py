@@ -1,3 +1,7 @@
+from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
+
 import os
 import subprocess
 import asyncio
@@ -6,17 +10,13 @@ import urllib.error
 import urllib.parse
 import json
 import socket
-import ipaddress
 import re
 import shodan
 import requests
 from urllib.parse import urlparse
 import urllib3
-from fastapi import FastAPI, UploadFile, File
-from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
-import uvicorn
 
 # Suppress insecure request warnings for targets without valid SSL
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -110,7 +110,7 @@ def get_decimal_from_dms(dms, ref):
     minutes = float(dms[1])
     seconds = float(dms[2])
     decimal = degrees + (minutes / 60.0) + (seconds / 3600.0)
-    if ref in ['S', 'W']:
+    if ref.upper() in ['S', 'W']:
         decimal = -decimal
     return decimal
 
