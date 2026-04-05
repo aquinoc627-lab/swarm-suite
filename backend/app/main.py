@@ -79,14 +79,16 @@ async def lifespan(app: FastAPI):
 
     # Run Alembic migrations to ensure the schema is current.
     try:
+        from pathlib import Path
         from alembic.config import Config as AlembicConfig
         from alembic import command as alembic_command
 
+        _alembic_ini = Path(__file__).resolve().parent.parent / "alembic.ini"
         logger.info("Running database migrations...")
-        alembic_cfg = AlembicConfig("alembic.ini")
+        alembic_cfg = AlembicConfig(str(_alembic_ini))
         alembic_command.upgrade(alembic_cfg, "head")
         logger.info("Database migrations complete.")
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:  # noqa: BLE001 — migration failures should not prevent startup
         logger.warning(
             "Alembic migrations failed (%s). Falling back to init_db().", exc
         )

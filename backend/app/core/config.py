@@ -96,6 +96,6 @@ if not os.getenv("GEMINI_API_KEY"):
     )
 
 if not os.getenv("DATABASE_URL"):
-    logger.info(
+    logger.warning(
         "DATABASE_URL is not set. Using SQLite as the default database for local development."
     )
