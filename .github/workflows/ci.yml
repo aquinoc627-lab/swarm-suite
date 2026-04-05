@@ -10,6 +10,8 @@ jobs:
   backend:
     name: Backend (Python 3.11)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -38,6 +40,8 @@ jobs:
   frontend:
     name: Frontend (Node 18)
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -69,6 +73,8 @@ jobs:
   docker:
     name: Docker Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
