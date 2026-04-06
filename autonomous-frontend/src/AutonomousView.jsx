@@ -2,7 +2,8 @@ import QuantumWarfare from "./QuantumWarfare";
 import { MdAutoFixHigh } from "react-icons/md";
 import PortalNetwork from "./PortalNetwork";
 import { MdOutlinePublic } from "react-icons/md";
-import GenerativeDashboard from "./GenerativeDashboard";
+import "./GenerativeDashboard.css";
+function GenerativeDashboard() { return <div className="generative-dashboard"><div className="gen-idle-state"><div className="idle-ring" /><p>Adaptive Ops Dashboard</p></div></div>; }
 import { MdOutlineArchitecture } from "react-icons/md";
 import React, { useCallback, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
