@@ -1,3 +1,4 @@
+import Profile from "./Profile";
 import ApiKeys from "./ApiKeys";
 import Billing from "./Billing";
 import React from "react";
@@ -79,6 +80,7 @@ function AppRoutes() {
         <Route path="osint" element={<Osint />} />
         <Route path="billing" element={<Billing />} />
         <Route path="apikeys" element={<ApiKeys />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

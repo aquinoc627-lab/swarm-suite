@@ -1,3 +1,4 @@
+import { MdOutlineShield } from "react-icons/md";
 import { MdVpnKey } from "react-icons/md";
 import KillSwitch from "./KillSwitch";
 import { MdPayment } from "react-icons/md";
@@ -489,6 +490,9 @@ export default function Layout() {
             </NavLink>
             <NavLink to="/apikeys" onClick={() => setSidebarOpen(false)}>
               <MdVpnKey /> <span>API Integrations</span>
+            </NavLink>
+            <NavLink to="/profile" onClick={() => setSidebarOpen(false)}>
+              <MdOutlineShield /> <span>Security & Profile</span>
             </NavLink>
 
             <div style={{ flex: 1 }} />

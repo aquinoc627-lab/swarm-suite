@@ -59,6 +59,12 @@ api.interceptors.response.use(
 export const authAPI = {
   login: (username, password) =>
     api.post("/api/auth/login", { username, password }),
+  login2FA: (username, password, otp_code) =>
+    api.post("/api/auth/verify-login-2fa", { username, password, otp_code }),
+  register: (data) =>
+    api.post("/api/auth/register", data),
+  enable2FA: () => api.post("/api/auth/enable-2fa"),
+  confirm2FA: (otp_code) => api.post("/api/auth/confirm-2fa", { otp_code }),
   me: () => api.get("/api/auth/me"),
   logout: (refreshToken) =>
     api.post("/api/auth/logout", { refresh_token: refreshToken }),

@@ -38,9 +38,21 @@ export function AuthProvider({ children }) {
 
   const login = async (username, password) => {
     const { data } = await authAPI.login(username, password);
+    if (data.require2fa) {
+      return data;
+    }
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
     await fetchUser();
+    return data;
+  };
+
+  const login2FA = async (username, password, otpCode) => {
+    const { data } = await authAPI.login2FA(username, password, otpCode);
+    localStorage.setItem("access_token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
+    await fetchUser();
+    return data;
   };
 
   const logout = async () => {
@@ -56,7 +68,7 @@ export function AuthProvider({ children }) {
   const isAdmin = user?.role === "admin";
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, login, login2FA, logout, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

@@ -92,6 +92,7 @@ class UserRead(BaseModel):
     updated_at: datetime
     tier: Optional[str] = "free_trial"
     trial_end_date: Optional[datetime] = None
+    totp_enabled: bool = False
 
 
 class UserUpdate(BaseModel):
@@ -264,3 +265,15 @@ class AuditLogRead(BaseModel):
     ip_address: Optional[str]
     created_at: datetime
     updated_at: datetime
+
+class VerifyTOTP(BaseModel):
+    otp_code: str
+
+class VerifyLoginTOTP(BaseModel):
+    username: str
+    password: str
+    otp_code: str
+
+class TOTPSetupResponse(BaseModel):
+    qr_code: str
+    secret: str
