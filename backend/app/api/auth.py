@@ -77,18 +77,15 @@ async def login(
         return {"require2fa": True, "message": "2FA required. Call /verify-login-2fa"}
 
     # Generate token pair
-    access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    access_token = create_access_token(user.id, user.role)
+    raw_refresh, refresh_hash, expires_at = create_refresh_token()
     
-    hashed_rt = hash_token(refresh_token)
-    from datetime import datetime, timedelta, timezone
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
-    db.add(RefreshToken(user_id=user.id, token_hash=hashed_rt, expires_at=expires_at))
+    db.add(RefreshToken(user_id=user.id, token_hash=refresh_hash, expires_at=expires_at))
 
     await record_audit(db, user_id=user.id, action="login_success", entity_type="auth", request=request)
     await db.commit()
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {"access_token": access_token, "refresh_token": raw_refresh, "token_type": "bearer"}
 
 @router.post("/verify-login-2fa")
 async def verify_login_2fa(
@@ -109,18 +106,15 @@ async def verify_login_2fa(
     if not totp.verify(body.otp_code, valid_window=1):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid 2FA code")
 
-    access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
-
-    hashed_rt = hash_token(refresh_token)
-    from datetime import datetime, timedelta, timezone
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
-    db.add(RefreshToken(user_id=user.id, token_hash=hashed_rt, expires_at=expires_at))
+    access_token = create_access_token(user.id, user.role)
+    raw_refresh, refresh_hash, expires_at = create_refresh_token()
+    
+    db.add(RefreshToken(user_id=user.id, token_hash=refresh_hash, expires_at=expires_at))
 
     await record_audit(db, user_id=user.id, action="login_success_2fa", entity_type="auth", request=request)
     await db.commit()
 
-    return {"access_token": access_token, "refresh_token": refresh_token, "token_type": "bearer"}
+    return {"access_token": access_token, "refresh_token": raw_refresh, "token_type": "bearer"}
 
 @router.post("/enable-2fa", response_model=TOTPSetupResponse)
 async def enable_2fa(
@@ -201,16 +195,13 @@ async def refresh_token(
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail="User inactive")
         
-    access_token = create_access_token(data={"sub": str(user.id)})
-    new_refresh = create_refresh_token(data={"sub": str(user.id)})
+    access_token = create_access_token(user.id, user.role)
+    raw_refresh, refresh_hash, expires_at = create_refresh_token()
     
-    new_hash = hash_token(new_refresh)
-    from datetime import datetime, timedelta, timezone
-    expires_at = datetime.now(timezone.utc) + timedelta(days=7)
-    db.add(RefreshToken(user_id=user.id, token_hash=new_hash, expires_at=expires_at))
+    db.add(RefreshToken(user_id=user.id, token_hash=refresh_hash, expires_at=expires_at))
     await db.commit()
     
-    return {"access_token": access_token, "refresh_token": new_refresh, "token_type": "bearer"}
+    return {"access_token": access_token, "refresh_token": raw_refresh, "token_type": "bearer"}
 
 @router.post("/logout")
 async def logout(
