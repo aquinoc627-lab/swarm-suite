@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
 import logging
 import requests
 
