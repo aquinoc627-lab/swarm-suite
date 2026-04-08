@@ -277,7 +277,7 @@ The platform uses **JWT (JSON Web Token)** authentication with refresh token rot
 
 | Problem | Solution |
 |---------|----------|
-| Cannot log in | Verify username/password. Check that the backend is running (`curl http://localhost:8000/api/health`). |
+| Cannot log in | Verify email/password. Check that the backend is running (`curl http://localhost:8000/api/health`). |
 | Frontend shows "API unreachable" | Confirm `REACT_APP_API_URL` matches the backend URL and the backend container is healthy. |
 | Agents not responding | Check backend logs (`docker-compose logs -f backend`) for Gemini API errors. Verify `GEMINI_API_KEY` is set. |
 | WebSocket disconnects frequently | Ensure your reverse proxy is configured with WebSocket upgrade headers (see DEPLOYMENT.md). |
