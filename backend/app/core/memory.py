@@ -9,7 +9,7 @@ import logging
 import os
 import uuid
 import chromadb
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from google import genai
 
 logger = logging.getLogger(__name__)

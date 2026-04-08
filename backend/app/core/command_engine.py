@@ -23,7 +23,7 @@ from __future__ import annotations
 import re
 import time
 import logging
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 from app.core.tool_registry import get_tool_by_id
 
