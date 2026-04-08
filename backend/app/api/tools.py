@@ -26,9 +26,7 @@ from pydantic import BaseModel, Field
 
 from app.core.security import get_current_user
 from app.core.tool_registry import (
-    TOOL_REGISTRY,
-    execute_tool,
-    get_all_tools,
+    TOOL_REGISTRY,get_all_tools,
     get_categories,
     get_tools_by_os,
     get_tool_by_id,
