@@ -10,9 +10,7 @@ import logging
 import os
 import shlex
 import tempfile
-from typing import Dict, Any, Optional
-from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
